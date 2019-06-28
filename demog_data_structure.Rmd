@@ -1,8 +1,15 @@
-path_bee <- "/opt/bee/data/entimice/RO5541267/CDT30006/WO29636/ovad/"
-list.files(path_bee)
-ADAE <- readRDS(file.path(path_bee, "ADAE.rds"))
-ADSL <- readRDS(file.path(path_bee, "ADSL.rds"))
+---
+title: "Applying to a demography table"
+author: 
+date: 
+output: html_document
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
 
+```{r}
 library(dplyr)
 
 display_dict <- tribble(
@@ -57,8 +64,6 @@ raw <- ADSL %>%
   mutate(section = variable)
 
 
-debugonce(prep_report)
-
 report <- left_join(raw, display_dict, by = "display") %>%
   mutate(precision = if_else(!is.na(precision), precision, 0)) %>%
   prep_report()
@@ -66,4 +71,8 @@ report <- left_join(raw, display_dict, by = "display") %>%
 report %>% tidyr::spread(column, cellc)
 
 x <- htmlTable::htmlTable(report)
+x
+
+```
+
 

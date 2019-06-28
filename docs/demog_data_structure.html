@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+<meta name="author" content="" />
+
+
+<title>Applying to a demography table</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Report data structures</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">About</a>
+</li>
+<li>
+  <a href="reporting_data_structure.html">Part 1: Introduction</a>
+</li>
+<li>
+  <a href="demog_data_structure.html">Part 2: Demographics</a>
+</li>
+<li>
+  <a href="data_structure_graphic.html">Part 3: Defining common structure</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Applying to a demography table</h1>
+
+</div>
+
+
+<pre class="r"><code>library(dplyr)
+
+display_dict &lt;- tribble(
+  ~display, ~format, ~precision,
+  &quot;ci&quot;,  &quot;{estimate}[{ci_low},{ci_high}]&quot;, 2 ,
+  &quot;count_percent&quot;, &quot;{count}({percent})&quot;, 2,
+  &quot;mean_sd&quot;, &quot;{mean}({sd})&quot;, 2,
+  &quot;range&quot;, &quot;{min},{max}&quot;, 2
+)
+
+desc_stats &lt;- c(&quot;mean&quot; = &quot;mean_sd&quot;,
+                &quot;sd&quot; = &quot;mean_sd&quot;,
+                &quot;max&quot; = &quot;range&quot;,
+                &quot;min&quot; = &quot;range&quot;,
+                &quot;median&quot; = &quot;median&quot;)
+
+prep_report &lt;- function(data){
+  bind_rows(
+    data %&gt;%
+      filter(is.na (value)) %&gt;%
+      mutate(cellc = purrr::map2_chr(cell, precision, formatC, format=&quot;f&quot;))
+    ,
+    data %&gt;%
+      filter(!is.na(value)) %&gt;%
+      mutate(cellc = purrr::map2_chr(cell, precision, formatC, format=&quot;f&quot;)) %&gt;%
+      group_by(section, label, column, param, format) %&gt;%
+      summarise(values = list(as.list(setNames(cellc, value)))) %&gt;%
+      mutate(cellc=purrr::map2_chr(values, format, glue::glue_data))
+  ) %&gt;%
+    select(section, label, column, param, cellc)
+
+}
+
+ADSL &lt;- random.cdisc.data::radsl() %&gt;% mutate(BMI = rnorm(nrow(.), 23, 2))
+
+raw &lt;- ADSL %&gt;%
+  group_by(ARM) %&gt;%
+  summarise_at(c(&quot;AGE&quot;, &quot;BMI&quot;),
+               list(mean=mean,
+                    max=max,
+                    min=min,
+                    sd=sd,
+                    median=median)) %&gt;%
+  tidyr::gather(summary, cell, -ARM) %&gt;%
+  tidyr::separate(summary, into=c(&quot;variable&quot;, &quot;statistic&quot;)) %&gt;%
+  mutate(display = desc_stats[statistic]) %&gt;%
+  mutate(label= display) %&gt;%
+  mutate(column = ARM) %&gt;%
+  mutate(param = display) %&gt;%
+  mutate(display = if_else(display!=&quot;median&quot;, display, NA_character_))%&gt;%
+  mutate(value = if_else(!is.na(display), statistic, NA_character_)) %&gt;%
+  mutate(section = variable)
+
+
+report &lt;- left_join(raw, display_dict, by = &quot;display&quot;) %&gt;%
+  mutate(precision = if_else(!is.na(precision), precision, 0)) %&gt;%
+  prep_report()</code></pre>
+<pre><code>## Warning: Column `display` has different attributes on LHS and RHS of join</code></pre>
+<pre class="r"><code>report %&gt;% tidyr::spread(column, cellc)</code></pre>
+<pre><code>## # A tibble: 6 x 6
+##   section label   param   `A: Drug X`  `B: Placebo` `C: Combination`
+##   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;        &lt;chr&gt;        &lt;chr&gt;           
+## 1 AGE     mean_sd mean_sd 44.03(17.21) 42.13(18.53) 41.85(15.42)    
+## 2 AGE     median  median  44           42           42              
+## 3 AGE     range   range   20.00,85.00  20.00,101.00 20.00,89.00     
+## 4 BMI     mean_sd mean_sd 23.05(1.91)  22.97(2.23)  23.33(1.78)     
+## 5 BMI     median  median  23           23           23              
+## 6 BMI     range   range   17.20,28.13  15.68,28.49  18.35,27.29</code></pre>
+<pre class="r"><code>x &lt;- htmlTable::htmlTable(report)
+x</code></pre>
+<table class="gmisc_table" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
+<thead>
+<tr>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey;">
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+section
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+label
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+column
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+param
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+cellc
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">
+1
+</td>
+<td style="text-align: center;">
+AGE
+</td>
+<td style="text-align: center;">
+median
+</td>
+<td style="text-align: center;">
+A: Drug X
+</td>
+<td style="text-align: center;">
+median
+</td>
+<td style="text-align: center;">
+44
+</td>
+</tr>
+<tr>
+<td style="text-align: left;">
+2
+</td>
+<td style="text-align: center;">
+AGE
+</td>
+<td style="text-align: center;">
+median
+</td>
+<td style="text-align: center;">
+B: Placebo
+</td>
+<td style="text-align: center;">
+median
+</td>
+<td style="text-align: center;">
+42
+</td>
+</tr>
+<tr>
+<td style="text-align: left;">
+3
+</td>
+<td style="text-align: center;">
+AGE
+</td>
+<td style="text-align: center;">
+median
+</td>
+<td style="text-align: center;">
+C: Combination
+</td>
+<td style="text-align: center;">
+median
+</td>
+<td style="text-align: center;">
+42
+</td>
+</tr>
+<tr>
+<td style="text-align: left;">
+4
+</td>
+<td style="text-align: center;">
+BMI
+</td>
+<td style="text-align: center;">
+median
+</td>
+<td style="text-align: center;">
+A: Drug X
+</td>
+<td style="text-align: center;">
+median
+</td>
+<td style="text-align: center;">
+23
+</td>
+</tr>
+<tr>
+<td style="text-align: left;">
+5
+</td>
+<td style="text-align: center;">
+BMI
+</td>
+<td style="text-align: center;">
+median
+</td>
+<td style="text-align: center;">
+B: Placebo
+</td>
+<td style="text-align: center;">
+median
+</td>
+<td style="text-align: center;">
+23
+</td>
+</tr>
+<tr>
+<td style="text-align: left;">
+6
+</td>
+<td style="text-align: center;">
+BMI
+</td>
+<td style="text-align: center;">
+median
+</td>
+<td style="text-align: center;">
+C: Combination
+</td>
+<td style="text-align: center;">
+median
+</td>
+<td style="text-align: center;">
+23
+</td>
+</tr>
+<tr>
+<td style="text-align: left;">
+7
+</td>
+<td style="text-align: center;">
+AGE
+</td>
+<td style="text-align: center;">
+mean_sd
+</td>
+<td style="text-align: center;">
+A: Drug X
+</td>
+<td style="text-align: center;">
+mean_sd
+</td>
+<td style="text-align: center;">
+44.03(17.21)
+</td>
+</tr>
+<tr>
+<td style="text-align: left;">
+8
+</td>
+<td style="text-align: center;">
+AGE
+</td>
+<td style="text-align: center;">
+mean_sd
+</td>
+<td style="text-align: center;">
+B: Placebo
+</td>
+<td style="text-align: center;">
+mean_sd
+</td>
+<td style="text-align: center;">
+42.13(18.53)
+</td>
+</tr>
+<tr>
+<td style="text-align: left;">
+9
+</td>
+<td style="text-align: center;">
+AGE
+</td>
+<td style="text-align: center;">
+mean_sd
+</td>
+<td style="text-align: center;">
+C: Combination
+</td>
+<td style="text-align: center;">
+mean_sd
+</td>
+<td style="text-align: center;">
+41.85(15.42)
+</td>
+</tr>
+<tr>
+<td style="text-align: left;">
+10
+</td>
+<td style="text-align: center;">
+AGE
+</td>
+<td style="text-align: center;">
+range
+</td>
+<td style="text-align: center;">
+A: Drug X
+</td>
+<td style="text-align: center;">
+range
+</td>
+<td style="text-align: center;">
+20.00,85.00
+</td>
+</tr>
+<tr>
+<td style="text-align: left;">
+11
+</td>
+<td style="text-align: center;">
+AGE
+</td>
+<td style="text-align: center;">
+range
+</td>
+<td style="text-align: center;">
+B: Placebo
+</td>
+<td style="text-align: center;">
+range
+</td>
+<td style="text-align: center;">
+20.00,101.00
+</td>
+</tr>
+<tr>
+<td style="text-align: left;">
+12
+</td>
+<td style="text-align: center;">
+AGE
+</td>
+<td style="text-align: center;">
+range
+</td>
+<td style="text-align: center;">
+C: Combination
+</td>
+<td style="text-align: center;">
+range
+</td>
+<td style="text-align: center;">
+20.00,89.00
+</td>
+</tr>
+<tr>
+<td style="text-align: left;">
+13
+</td>
+<td style="text-align: center;">
+BMI
+</td>
+<td style="text-align: center;">
+mean_sd
+</td>
+<td style="text-align: center;">
+A: Drug X
+</td>
+<td style="text-align: center;">
+mean_sd
+</td>
+<td style="text-align: center;">
+23.05(1.91)
+</td>
+</tr>
+<tr>
+<td style="text-align: left;">
+14
+</td>
+<td style="text-align: center;">
+BMI
+</td>
+<td style="text-align: center;">
+mean_sd
+</td>
+<td style="text-align: center;">
+B: Placebo
+</td>
+<td style="text-align: center;">
+mean_sd
+</td>
+<td style="text-align: center;">
+22.97(2.23)
+</td>
+</tr>
+<tr>
+<td style="text-align: left;">
+15
+</td>
+<td style="text-align: center;">
+BMI
+</td>
+<td style="text-align: center;">
+mean_sd
+</td>
+<td style="text-align: center;">
+C: Combination
+</td>
+<td style="text-align: center;">
+mean_sd
+</td>
+<td style="text-align: center;">
+23.33(1.78)
+</td>
+</tr>
+<tr>
+<td style="text-align: left;">
+16
+</td>
+<td style="text-align: center;">
+BMI
+</td>
+<td style="text-align: center;">
+range
+</td>
+<td style="text-align: center;">
+A: Drug X
+</td>
+<td style="text-align: center;">
+range
+</td>
+<td style="text-align: center;">
+17.20,28.13
+</td>
+</tr>
+<tr>
+<td style="text-align: left;">
+17
+</td>
+<td style="text-align: center;">
+BMI
+</td>
+<td style="text-align: center;">
+range
+</td>
+<td style="text-align: center;">
+B: Placebo
+</td>
+<td style="text-align: center;">
+range
+</td>
+<td style="text-align: center;">
+15.68,28.49
+</td>
+</tr>
+<tr>
+<td style="border-bottom: 2px solid grey; text-align: left;">
+18
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+BMI
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+range
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+C: Combination
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+range
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+18.35,27.29
+</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

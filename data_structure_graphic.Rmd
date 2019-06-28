@@ -1,7 +1,7 @@
 ---
-title: "table_structure"
-author: "Matthew Brierley"
-date: "28/06/2019"
+title: "Table structure"
+author: 
+date: 
 output: html_document
 ---
 
@@ -12,3 +12,37 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r pressure, echo=FALSE, fig.cap="From gt", out.width = '100%'}
 knitr::include_graphics("images/gt_parts_of_a_table.svg")
 ```
+
+The above graphic explaining the api for the gt package provides a good initial basis to begin thinking about a data structure that can be mapped to a table.
+
+As a remainder from previous discussion the proposal would be to define a data  structure in a long format with one observation per unique value presented in the table. What is denoted as a cell in the graphic may represent the concatanation of 3 values (in the case the cell contains a confidence interval)
+
+For clinical report table the stub of the table may require for than a single row label column. Maybe a maximum of three levels to cover by time period, by treatment arm, by label would suffice. Additional often a by-group is applied, and the table is repeated by different categories within a by-group
+
+####Variables in the initial dataframe
+
+WIP(maybe better to switch to more CDISC like nomenclature??)
+
+* **subgroup**(optional): partition the entire table by levels of this variable.
+* **section** horizontal sections of the table
+* **column** column headers for the table
+* **sub-column**(optional): additional variable which if specfied would be nested under a spanning header of column values. I.e break down demographics table by Arm and sex.
+* **value** single value that be need concatentation (n (%), confidence interval) to create the table cell content
+* **label** row label element of the table
+* **display** a term which will drive (with a dictionary of display terms) the conversion of values to cells
+* **precision** (ideally this would be incorporated into display). Rounding precision applied when converting numeric values into character cell values
+
+
+Additional information required for conversion of this dataframe into a table:
+**display dictionary**. 
+**row group label**(see graphic) information.
+
+#### Variables in the intermediate dataframe
+* **section** horizontal sections of the table
+* **column** column headers for the table
+* **sub-column**(optional): additional variable which if specfied would be nested under a spanning header of column values. I.e break down demographics table by Arm and sex.
+* **cell** single value that be need concatentation (n (%), confidence interval) to create the table cell content
+
+
+
+

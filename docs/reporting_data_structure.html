@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+<meta name="author" content="" />
+
+
+<title>Standardised data structure for table report</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Report data structures</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">About</a>
+</li>
+<li>
+  <a href="reporting_data_structure.html">Part 1: Introduction</a>
+</li>
+<li>
+  <a href="demog_data_structure.html">Part 2: Demographics</a>
+</li>
+<li>
+  <a href="data_structure_graphic.html">Part 3: Defining common structure</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Standardised data structure for table report</h1>
+
+</div>
+
+
+<div id="problem-statement" class="section level3">
+<h3>Problem Statement</h3>
+<p>Consider the following CSR style report</p>
+<pre class="r"><code>suppressPackageStartupMessages(library(tidyverse))
+library(htmlTable)
+
+report &lt;- tribble(
+  ~label, ~n_a, ~events_a, ~median_ci_a,  ~n_b, ~events_b, ~median_ci_b,
+  &quot;All patients&quot;,  &quot;200&quot;,  &quot;100&quot;,  &quot;8.0 [7.2, 8.8]&quot;,  &quot;200&quot;, &quot;80&quot;, &quot;12.0[11.0, 13.0]&quot;,
+  &quot;Male&quot;,          &quot;102&quot;,  &quot;50&quot;,  &quot;8.0 [6.5, 9.5]&quot;,  &quot;97&quot;, &quot;42&quot;, &quot;12.1[10.5, 13.5]&quot;,
+  &quot;Female&quot;,         &quot;98&quot;,  &quot;50&quot;,  &quot;8.0 [6.5, 9.5]&quot;,  &quot;103&quot;, &quot;38&quot;, &quot;12.0[10.4, 13.6]&quot;
+)
+
+htmlTable(report,
+          rnames = FALSE,
+          align = &quot;lc&quot;,
+          css.cell = &quot;padding-left: .5em; padding-right: .2em;&quot;,
+          col.rgroup = c(&quot;none&quot;, &quot;#F7F7F7&quot;),
+          n.cgroup = c(1,3,3),
+          cgroup = c(&quot;&quot;, &quot;Treatment A&quot;, &quot;Treatment B&quot;), 
+          header = c(&quot;&quot;, &quot;n&quot;, &quot;Events&quot;, &quot;Median (95% CI)&quot;, &quot;n&quot;, &quot;Events&quot;, &quot;Median (95% CI)&quot;),
+          rgroup = c(&quot;&quot;, &quot;Sex&quot;),
+          n.rgroup=c(1,2)
+)</code></pre>
+<table class="gmisc_table" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
+<thead>
+<tr>
+<th colspan="1" style="font-weight: 900; border-top: 2px solid grey; text-align: center;">
+</th>
+<th style="border-top: 2px solid grey;; border-bottom: hidden;">
+ 
+</th>
+<th colspan="3" style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Treatment A
+</th>
+<th style="border-top: 2px solid grey;; border-bottom: hidden;">
+ 
+</th>
+<th colspan="3" style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Treatment B
+</th>
+</tr>
+<tr>
+<th style="border-bottom: 1px solid grey; text-align: center;">
+</th>
+<th style="border-bottom: 1px solid grey;" colspan="1">
+ 
+</th>
+<th style="border-bottom: 1px solid grey; text-align: center;">
+n
+</th>
+<th style="border-bottom: 1px solid grey; text-align: center;">
+Events
+</th>
+<th style="border-bottom: 1px solid grey; text-align: center;">
+Median (95% CI)
+</th>
+<th style="border-bottom: 1px solid grey;" colspan="1">
+ 
+</th>
+<th style="border-bottom: 1px solid grey; text-align: center;">
+n
+</th>
+<th style="border-bottom: 1px solid grey; text-align: center;">
+Events
+</th>
+<th style="border-bottom: 1px solid grey; text-align: center;">
+Median (95% CI)
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="padding-left: .5em; padding-right: .2em; text-align: left;">
+All patients
+</td>
+<td style colspan="1">
+ 
+</td>
+<td style="padding-left: .5em; padding-right: .2em; text-align: center;">
+200
+</td>
+<td style="padding-left: .5em; padding-right: .2em; text-align: center;">
+100
+</td>
+<td style="padding-left: .5em; padding-right: .2em; text-align: center;">
+8.0 [7.2, 8.8]
+</td>
+<td style colspan="1">
+ 
+</td>
+<td style="padding-left: .5em; padding-right: .2em; text-align: center;">
+200
+</td>
+<td style="padding-left: .5em; padding-right: .2em; text-align: center;">
+80
+</td>
+<td style="padding-left: .5em; padding-right: .2em; text-align: center;">
+12.0[11.0, 13.0]
+</td>
+</tr>
+<tr>
+<td colspan="9" style="font-weight: 900; background-color: #f7f7f7;">
+Sex
+</td>
+</tr>
+<tr style="background-color: #f7f7f7;">
+<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: left;">
+Male
+</td>
+<td style="background-color: #f7f7f7;" colspan="1">
+ 
+</td>
+<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
+102
+</td>
+<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
+50
+</td>
+<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
+8.0 [6.5, 9.5]
+</td>
+<td style="background-color: #f7f7f7;" colspan="1">
+ 
+</td>
+<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
+97
+</td>
+<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
+42
+</td>
+<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
+12.1[10.5, 13.5]
+</td>
+</tr>
+<tr style="background-color: #f7f7f7;">
+<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; border-bottom: 2px solid grey; text-align: left;">
+Female
+</td>
+<td style="background-color: #f7f7f7; border-bottom: 2px solid grey;" colspan="1">
+ 
+</td>
+<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; border-bottom: 2px solid grey; text-align: center;">
+98
+</td>
+<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; border-bottom: 2px solid grey; text-align: center;">
+50
+</td>
+<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; border-bottom: 2px solid grey; text-align: center;">
+8.0 [6.5, 9.5]
+</td>
+<td style="background-color: #f7f7f7; border-bottom: 2px solid grey;" colspan="1">
+ 
+</td>
+<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; border-bottom: 2px solid grey; text-align: center;">
+103
+</td>
+<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; border-bottom: 2px solid grey; text-align: center;">
+38
+</td>
+<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; border-bottom: 2px solid grey; text-align: center;">
+12.0[10.4, 13.6]
+</td>
+</tr>
+</tbody>
+</table>
+<p>We would like to define a <strong>standardized data structure</strong> that stores the raw values displayed in the report. We would like to take a <code>tidyverse</code> approach since <code>tidyverse</code> is well-known and the data structures will not be large. We do not necesarily need to use <code>htmlTable</code> for the final table report. Data summarizing and data reporting are completely separated out.</p>
+<p><strong>The benefits of this:</strong></p>
+<ul>
+<li>Can have a single or minimal suite of validated functions that map the data frame to a final table to which can increase reporting efficiency</li>
+<li>Can also create plots from the same data structure ensuring output consistency</li>
+<li>Can store each dataframe that is associated with a report and compare against different versions to programmatically identify changes to values across different data cuts within a study</li>
+<li>Can place data sets in a larger database and retreieve and combine results from different studies within a project because results are saved in a consistent way.</li>
+</ul>
+<p><strong>Challenges:</strong></p>
+<ul>
+<li>Table report requires a charater string. We want to store numeric values. When should conversion take place?</li>
+<li>Some table cells suce as the confidence intervals are comprised of 3 different values.</li>
+<li>The layout of the final table may be quite varied. May required spanning columns, repeating by differenent time-points or poulations, may require controlled breaking for pagination.</li>
+<li>The same summary parameters may not be combined in the same way in different tables, need to be ably to flexibly specify how to combine raw values.</li>
+</ul>
+<p>Here is an initial suggestion for the structure of the data frame:</p>
+<pre class="r"><code>raw &lt;- tribble(
+  ~label, ~column, ~param, ~value,
+  &quot;All patients&quot;, &quot;Treatment A&quot;, &quot;n&quot;, 200,
+  &quot;All patients&quot;, &quot;Treatment A&quot;, &quot;events&quot;, 100,
+  &quot;All patients&quot;, &quot;Treatment A&quot;, &quot;median&quot;, 8.0,
+  &quot;All patients&quot;, &quot;Treatment A&quot;, &quot;median_ci_low&quot;, 7.2,
+  &quot;All patients&quot;, &quot;Treatment A&quot;, &quot;median_ci_high&quot;, 8.8,
+  
+  &quot;All patients&quot;, &quot;Treatment B&quot;, &quot;n&quot;, 200,
+  &quot;All patients&quot;, &quot;Treatment B&quot;, &quot;events&quot;, 80,
+  &quot;All patients&quot;, &quot;Treatment B&quot;, &quot;median&quot;, 12.0,
+  &quot;All patients&quot;, &quot;Treatment B&quot;, &quot;median_ci_low&quot;, 11.0,
+  &quot;All patients&quot;, &quot;Treatment B&quot;, &quot;median_ci_high&quot;, 13.0,
+  
+  &quot;Male&quot;, &quot;Treatment A&quot;, &quot;n&quot;, 102,
+  &quot;Male&quot;, &quot;Treatment A&quot;, &quot;events&quot;, 50,
+  &quot;Male&quot;, &quot;Treatment A&quot;, &quot;median&quot;, 8.0,
+  &quot;Male&quot;, &quot;Treatment A&quot;, &quot;median_ci_low&quot;, 6.5,
+  &quot;Male&quot;, &quot;Treatment A&quot;, &quot;median_ci_high&quot;, 9.5,
+  
+  &quot;Male&quot;, &quot;Treatment B&quot;, &quot;n&quot;, 97,
+  &quot;Male&quot;, &quot;Treatment B&quot;, &quot;events&quot;,42,
+  &quot;Male&quot;, &quot;Treatment B&quot;, &quot;median&quot;, 12.1,
+  &quot;Male&quot;, &quot;Treatment B&quot;, &quot;median_ci_low&quot;, 10.5,
+  &quot;Male&quot;, &quot;Treatment B&quot;, &quot;median_ci_high&quot;, 13.5,
+  
+  &quot;Female&quot;, &quot;Treatment A&quot;, &quot;n&quot;, 98,
+  &quot;Female&quot;, &quot;Treatment A&quot;, &quot;events&quot;, 50,
+  &quot;Female&quot;, &quot;Treatment A&quot;, &quot;median&quot;, 8.0,
+  &quot;Female&quot;, &quot;Treatment A&quot;, &quot;median_ci_low&quot;, 6.5,
+  &quot;Female&quot;, &quot;Treatment A&quot;, &quot;median_ci_high&quot;, 9.5,
+  
+  &quot;Female&quot;, &quot;Treatment B&quot;, &quot;n&quot;, 103,
+  &quot;Female&quot;, &quot;Treatment B&quot;, &quot;events&quot;, 38,
+  &quot;Female&quot;, &quot;Treatment B&quot;, &quot;median&quot;, 12.0,
+  &quot;Female&quot;, &quot;Treatment B&quot;, &quot;median_ci_low&quot;, 10.4,
+  &quot;Female&quot;, &quot;Treatment B&quot;, &quot;median_ci_high&quot;, 13.6,
+)
+
+knitr::kable(head(raw))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">label</th>
+<th align="left">column</th>
+<th align="left">param</th>
+<th align="right">value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">All patients</td>
+<td align="left">Treatment A</td>
+<td align="left">n</td>
+<td align="right">200.0</td>
+</tr>
+<tr class="even">
+<td align="left">All patients</td>
+<td align="left">Treatment A</td>
+<td align="left">events</td>
+<td align="right">100.0</td>
+</tr>
+<tr class="odd">
+<td align="left">All patients</td>
+<td align="left">Treatment A</td>
+<td align="left">median</td>
+<td align="right">8.0</td>
+</tr>
+<tr class="even">
+<td align="left">All patients</td>
+<td align="left">Treatment A</td>
+<td align="left">median_ci_low</td>
+<td align="right">7.2</td>
+</tr>
+<tr class="odd">
+<td align="left">All patients</td>
+<td align="left">Treatment A</td>
+<td align="left">median_ci_high</td>
+<td align="right">8.8</td>
+</tr>
+<tr class="even">
+<td align="left">All patients</td>
+<td align="left">Treatment B</td>
+<td align="left">n</td>
+<td align="right">200.0</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="step-1-combine-values-to-match-table-cells" class="section level3">
+<h3>Step 1: Combine values to match table cells</h3>
+<pre class="r"><code>prep_report &lt;-
+raw %&gt;% 
+  filter(param %in% c(&quot;median&quot;, &quot;median_ci_low&quot;, &quot;median_ci_high&quot;)) %&gt;% 
+  group_by(label, column) %&gt;% 
+  summarise(valuec = paste0(value[1], &quot;(&quot;, value[2], &quot;,&quot;, value[3], &quot;)&quot;)) %&gt;% 
+  mutate(param = &quot;median_ci&quot;) %&gt;% 
+
+bind_rows(raw %&gt;% 
+            filter(! param %in% c(&quot;median&quot;, &quot;median_ci_low&quot;, &quot;median_ci_high&quot;) ) %&gt;% 
+            mutate(valuec = as.character(value)) %&gt;% 
+            select(label, column, param, valuec)
+)
+
+knitr::kable(prep_report)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">label</th>
+<th align="left">column</th>
+<th align="left">valuec</th>
+<th align="left">param</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">All patients</td>
+<td align="left">Treatment A</td>
+<td align="left">8(7.2,8.8)</td>
+<td align="left">median_ci</td>
+</tr>
+<tr class="even">
+<td align="left">All patients</td>
+<td align="left">Treatment B</td>
+<td align="left">12(11,13)</td>
+<td align="left">median_ci</td>
+</tr>
+<tr class="odd">
+<td align="left">Female</td>
+<td align="left">Treatment A</td>
+<td align="left">8(6.5,9.5)</td>
+<td align="left">median_ci</td>
+</tr>
+<tr class="even">
+<td align="left">Female</td>
+<td align="left">Treatment B</td>
+<td align="left">12(10.4,13.6)</td>
+<td align="left">median_ci</td>
+</tr>
+<tr class="odd">
+<td align="left">Male</td>
+<td align="left">Treatment A</td>
+<td align="left">8(6.5,9.5)</td>
+<td align="left">median_ci</td>
+</tr>
+<tr class="even">
+<td align="left">Male</td>
+<td align="left">Treatment B</td>
+<td align="left">12.1(10.5,13.5)</td>
+<td align="left">median_ci</td>
+</tr>
+<tr class="odd">
+<td align="left">All patients</td>
+<td align="left">Treatment A</td>
+<td align="left">200</td>
+<td align="left">n</td>
+</tr>
+<tr class="even">
+<td align="left">All patients</td>
+<td align="left">Treatment A</td>
+<td align="left">100</td>
+<td align="left">events</td>
+</tr>
+<tr class="odd">
+<td align="left">All patients</td>
+<td align="left">Treatment B</td>
+<td align="left">200</td>
+<td align="left">n</td>
+</tr>
+<tr class="even">
+<td align="left">All patients</td>
+<td align="left">Treatment B</td>
+<td align="left">80</td>
+<td align="left">events</td>
+</tr>
+<tr class="odd">
+<td align="left">Male</td>
+<td align="left">Treatment A</td>
+<td align="left">102</td>
+<td align="left">n</td>
+</tr>
+<tr class="even">
+<td align="left">Male</td>
+<td align="left">Treatment A</td>
+<td align="left">50</td>
+<td align="left">events</td>
+</tr>
+<tr class="odd">
+<td align="left">Male</td>
+<td align="left">Treatment B</td>
+<td align="left">97</td>
+<td align="left">n</td>
+</tr>
+<tr class="even">
+<td align="left">Male</td>
+<td align="left">Treatment B</td>
+<td align="left">42</td>
+<td align="left">events</td>
+</tr>
+<tr class="odd">
+<td align="left">Female</td>
+<td align="left">Treatment A</td>
+<td align="left">98</td>
+<td align="left">n</td>
+</tr>
+<tr class="even">
+<td align="left">Female</td>
+<td align="left">Treatment A</td>
+<td align="left">50</td>
+<td align="left">events</td>
+</tr>
+<tr class="odd">
+<td align="left">Female</td>
+<td align="left">Treatment B</td>
+<td align="left">103</td>
+<td align="left">n</td>
+</tr>
+<tr class="even">
+<td align="left">Female</td>
+<td align="left">Treatment B</td>
+<td align="left">38</td>
+<td align="left">events</td>
+</tr>
+</tbody>
+</table>
+<p>After this step each valuec in the data frame is exactly as it will apear in the report. There are many possible different parmaters and different ways that parameters in the proposed dataframe may be combined. E.g. ranges, mean(sd), confidence intervales, counts with percentages. Where are the instructions for the combining stored? In the initial data structure? as variables? as metadata. Indepently of the data structure? <strong>This step seems very challenging to generalise</strong></p>
+</div>
+<div id="step-2-transpose-and-report" class="section level3">
+<h3>Step 2: Transpose and report</h3>
+<pre class="r"><code>report &lt;- 
+  prep_report %&gt;% 
+  unite(col_p, column, param) %&gt;% 
+  spread(col_p, valuec)
+
+htmlTable(report)</code></pre>
+<table class="gmisc_table" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
+<thead>
+<tr>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey;">
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+label
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Treatment A_events
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Treatment A_median_ci
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Treatment A_n
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Treatment B_events
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Treatment B_median_ci
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Treatment B_n
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">
+1
+</td>
+<td style="text-align: center;">
+All patients
+</td>
+<td style="text-align: center;">
+100
+</td>
+<td style="text-align: center;">
+8(7.2,8.8)
+</td>
+<td style="text-align: center;">
+200
+</td>
+<td style="text-align: center;">
+80
+</td>
+<td style="text-align: center;">
+12(11,13)
+</td>
+<td style="text-align: center;">
+200
+</td>
+</tr>
+<tr>
+<td style="text-align: left;">
+2
+</td>
+<td style="text-align: center;">
+Female
+</td>
+<td style="text-align: center;">
+50
+</td>
+<td style="text-align: center;">
+8(6.5,9.5)
+</td>
+<td style="text-align: center;">
+98
+</td>
+<td style="text-align: center;">
+38
+</td>
+<td style="text-align: center;">
+12(10.4,13.6)
+</td>
+<td style="text-align: center;">
+103
+</td>
+</tr>
+<tr>
+<td style="border-bottom: 2px solid grey; text-align: left;">
+3
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+Male
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+50
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+8(6.5,9.5)
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+102
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+42
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+12.1(10.5,13.5)
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+97
+</td>
+</tr>
+</tbody>
+</table>
+<p>The second step should be much easier to generalize. Should be possible to have one or a very limited set of functions that map the intermediate dataframe to the final report. Challenges include supplying the final metadata added to the report e.g. (treatment ordering, column headers, column spanners, section labels)</p>
+</div>
+<div id="example-using-glue" class="section level3">
+<h3>Example using glue</h3>
+<p>The code snippet below shows how we can use glue to specify the display format</p>
+<pre class="r"><code>estimate &lt;- 12.0
+ci_low &lt;- 10.0
+ci_high &lt;- 14.0
+
+values &lt;-  list(estimate, ci_low, ci_high)
+names(values)  &lt;- c(&quot;estimate&quot;, &quot;ci_low&quot;, &quot;ci_high&quot;)
+format &lt;- &quot;{estimate}({ci_low}, {ci_high})&quot;
+purrr::map(values, formatC, format=&quot;f&quot;, digits=1) %&gt;% glue::glue_data(format)</code></pre>
+<pre><code>## 12.0(10.0, 14.0)</code></pre>
+</div>
+<div id="applying-this-to-a-result-dataframe-with-formatting-instructions" class="section level3">
+<h3>Applying this to a result dataframe with formatting instructions</h3>
+<pre class="r"><code>raw &lt;- tribble(
+  ~label, ~column, ~param, ~value, ~cell,  ~precision,  ~format, 
+  &quot;All patients&quot;, &quot;Treatment A&quot;, &quot;n&quot;,           NA,  200, 0, NA,
+  &quot;All patients&quot;, &quot;Treatment A&quot;, &quot;events&quot;,      NA,  100, 0, NA,
+  &quot;All patients&quot;, &quot;Treatment A&quot;, &quot;median_ci&quot;,  &quot;median&quot;, 8.0, 1, &quot;{median}({median_ci_low}, {median_ci_high})&quot;,
+  &quot;All patients&quot;, &quot;Treatment A&quot;, &quot;median_ci&quot;, &quot;median_ci_low&quot;, 7.2, 2, &quot;{median}({median_ci_low}, {median_ci_high})&quot;,
+  &quot;All patients&quot;, &quot;Treatment A&quot;, &quot;median_ci&quot;,  &quot;median_ci_high&quot;, 8.8, 2, &quot;{median}({median_ci_low}, {median_ci_high})&quot;,
+  
+  &quot;All patients&quot;, &quot;Treatment B&quot;, &quot;n&quot;,           NA,  200, 0, NA,
+  &quot;All patients&quot;, &quot;Treatment B&quot;, &quot;events&quot;,      NA,  100, 0, NA,
+  &quot;All patients&quot;, &quot;Treatment B&quot;, &quot;median_ci&quot;,  &quot;median&quot;, 12.0, 1, &quot;{median}({median_ci_low}, {median_ci_high})&quot;,
+  &quot;All patients&quot;, &quot;Treatment B&quot;, &quot;median_ci&quot;, &quot;median_ci_low&quot;, 11.0, 2, &quot;{median}({median_ci_low}, {median_ci_high})&quot;,
+  &quot;All patients&quot;, &quot;Treatment B&quot;, &quot;median_ci&quot;,  &quot;median_ci_high&quot;, 13.0, 2, &quot;{median}({median_ci_low}, {median_ci_high})&quot;
+)
+
+knitr::kable(raw)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">label</th>
+<th align="left">column</th>
+<th align="left">param</th>
+<th align="left">value</th>
+<th align="right">cell</th>
+<th align="right">precision</th>
+<th align="left">format</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">All patients</td>
+<td align="left">Treatment A</td>
+<td align="left">n</td>
+<td align="left">NA</td>
+<td align="right">200.0</td>
+<td align="right">0</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">All patients</td>
+<td align="left">Treatment A</td>
+<td align="left">events</td>
+<td align="left">NA</td>
+<td align="right">100.0</td>
+<td align="right">0</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">All patients</td>
+<td align="left">Treatment A</td>
+<td align="left">median_ci</td>
+<td align="left">median</td>
+<td align="right">8.0</td>
+<td align="right">1</td>
+<td align="left">{median}({median_ci_low}, {median_ci_high})</td>
+</tr>
+<tr class="even">
+<td align="left">All patients</td>
+<td align="left">Treatment A</td>
+<td align="left">median_ci</td>
+<td align="left">median_ci_low</td>
+<td align="right">7.2</td>
+<td align="right">2</td>
+<td align="left">{median}({median_ci_low}, {median_ci_high})</td>
+</tr>
+<tr class="odd">
+<td align="left">All patients</td>
+<td align="left">Treatment A</td>
+<td align="left">median_ci</td>
+<td align="left">median_ci_high</td>
+<td align="right">8.8</td>
+<td align="right">2</td>
+<td align="left">{median}({median_ci_low}, {median_ci_high})</td>
+</tr>
+<tr class="even">
+<td align="left">All patients</td>
+<td align="left">Treatment B</td>
+<td align="left">n</td>
+<td align="left">NA</td>
+<td align="right">200.0</td>
+<td align="right">0</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">All patients</td>
+<td align="left">Treatment B</td>
+<td align="left">events</td>
+<td align="left">NA</td>
+<td align="right">100.0</td>
+<td align="right">0</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">All patients</td>
+<td align="left">Treatment B</td>
+<td align="left">median_ci</td>
+<td align="left">median</td>
+<td align="right">12.0</td>
+<td align="right">1</td>
+<td align="left">{median}({median_ci_low}, {median_ci_high})</td>
+</tr>
+<tr class="odd">
+<td align="left">All patients</td>
+<td align="left">Treatment B</td>
+<td align="left">median_ci</td>
+<td align="left">median_ci_low</td>
+<td align="right">11.0</td>
+<td align="right">2</td>
+<td align="left">{median}({median_ci_low}, {median_ci_high})</td>
+</tr>
+<tr class="even">
+<td align="left">All patients</td>
+<td align="left">Treatment B</td>
+<td align="left">median_ci</td>
+<td align="left">median_ci_high</td>
+<td align="right">13.0</td>
+<td align="right">2</td>
+<td align="left">{median}({median_ci_low}, {median_ci_high})</td>
+</tr>
+</tbody>
+</table>
+<p>We can now define a function to collapse the intial dataframe from one row per reported value to one row to report cell.</p>
+<pre class="r"><code>prep_report &lt;- function(data){
+    bind_rows(
+    data %&gt;%
+      filter(is.na (value)) %&gt;%
+      mutate(cellc = purrr::map2_chr(cell, precision, formatC, format=&quot;f&quot;))
+    ,
+    data %&gt;%
+      filter(!is.na(value)) %&gt;%
+      mutate(cellc = purrr::map2_chr(cell, precision, formatC, format=&quot;f&quot;)) %&gt;%
+      group_by(label, column, param, format) %&gt;%
+      summarise(values = list(as.list(setNames(cellc, value)))) %&gt;%
+      mutate(cellc=purrr::map2_chr(values, format, glue::glue_data))
+  ) %&gt;%
+  select(label, column, param, cellc)
+  
+}
+
+prep_report(raw)</code></pre>
+<pre><code>## # A tibble: 6 x 4
+##   label        column      param     cellc             
+##   &lt;chr&gt;        &lt;chr&gt;       &lt;chr&gt;     &lt;chr&gt;             
+## 1 All patients Treatment A n         200               
+## 2 All patients Treatment A events    100               
+## 3 All patients Treatment B n         200               
+## 4 All patients Treatment B events    100               
+## 5 All patients Treatment A median_ci 8.0(7.20, 8.80)   
+## 6 All patients Treatment B median_ci 12.0(11.00, 13.00)</code></pre>
+<pre class="r"><code>report &lt;-
+  prep_report(raw) %&gt;%
+  tidyr::unite(col_p, column, param) %&gt;%
+  tidyr::spread(col_p, cellc)
+
+x &lt;- htmlTable::htmlTable(report)
+x</code></pre>
+<table class="gmisc_table" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
+<thead>
+<tr>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey;">
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+label
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Treatment A_events
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Treatment A_median_ci
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Treatment A_n
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Treatment B_events
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Treatment B_median_ci
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Treatment B_n
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border-bottom: 2px solid grey; text-align: left;">
+1
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+All patients
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+100
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+8.0(7.20, 8.80)
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+200
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+100
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+12.0(11.00, 13.00)
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+200
+</td>
+</tr>
+</tbody>
+</table>
+<p>This is one solution where the rules for collapsing multiple initial numeric variables into a single string and then transposing for the final data could work. However it may be frustrating to always embed the decoding rules within the dataframe. An alternative possibility could be to include a dictionary of decoding rules for each param. This may look something like this:</p>
+<pre class="r"><code>display_dict &lt;- tribble(
+  ~display, ~format, ~precision,
+  &quot;ci&quot;,  &quot;{estimate}[{ci_low},{ci_high}]&quot;, 2 ,
+  &quot;count_percent&quot;, &quot;{count}({percent})&quot;, 2,
+  &quot;mean_sd&quot;, &quot;{mean}({sd})&quot;, 2,
+  &quot;range&quot;, &quot;{min},{max}&quot;, 2
+)
+
+raw2 &lt;- tribble(
+  ~label, ~column, ~param,  ~value, ~cell, ~display, 
+  &quot;All patients&quot;, &quot;Treatment A&quot;, &quot;n&quot;,           NA,  200, NA,
+  &quot;All patients&quot;, &quot;Treatment A&quot;, &quot;events&quot;,      NA,  100, NA,
+  &quot;All patients&quot;, &quot;Treatment A&quot;, &quot;median_ci&quot;,  &quot;estimate&quot;, 8.0, &quot;ci&quot;,
+  &quot;All patients&quot;, &quot;Treatment A&quot;, &quot;median_ci&quot;, &quot;ci_low&quot;, 7.2, &quot;ci&quot;,
+  &quot;All patients&quot;, &quot;Treatment A&quot;, &quot;median_ci&quot;,  &quot;ci_high&quot;, 8.8, &quot;ci&quot;,
+  
+  &quot;All patients&quot;, &quot;Treatment B&quot;, &quot;n&quot;,           NA,  200, NA,
+  &quot;All patients&quot;, &quot;Treatment B&quot;, &quot;events&quot;,      NA,  100, NA,
+  &quot;All patients&quot;, &quot;Treatment B&quot;, &quot;median_ci&quot;,  &quot;estimate&quot;, 12.0, &quot;ci&quot;,
+  &quot;All patients&quot;, &quot;Treatment B&quot;, &quot;median_ci&quot;, &quot;ci_low&quot;, 11.0, &quot;ci&quot;,
+  &quot;All patients&quot;, &quot;Treatment B&quot;, &quot;median_ci&quot;,  &quot;ci_high&quot;, 13.0, &quot;ci&quot;
+)
+
+left_join(raw2, display_dict, by = &quot;display&quot;) %&gt;% 
+  mutate(precision = if_else(!is.na(precision), precision, 0)) %&gt;% 
+  prep_report() %&gt;% 
+  tidyr::unite(col_p, column, param) %&gt;%
+  tidyr::spread(col_p, cellc)</code></pre>
+<pre><code>## # A tibble: 1 x 7
+##   label `Treatment A_ev… `Treatment A_me… `Treatment A_n` `Treatment B_ev…
+##   &lt;chr&gt; &lt;chr&gt;            &lt;chr&gt;            &lt;chr&gt;           &lt;chr&gt;           
+## 1 All … 100              8.00[7.20,8.80]  200             100             
+## # … with 2 more variables: `Treatment B_median_ci` &lt;chr&gt;, `Treatment
+## #   B_n` &lt;chr&gt;</code></pre>
+<pre class="r"><code>x &lt;- htmlTable::htmlTable(report)
+x</code></pre>
+<table class="gmisc_table" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
+<thead>
+<tr>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey;">
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+label
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Treatment A_events
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Treatment A_median_ci
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Treatment A_n
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Treatment B_events
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Treatment B_median_ci
+</th>
+<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Treatment B_n
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border-bottom: 2px solid grey; text-align: left;">
+1
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+All patients
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+100
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+8.0(7.20, 8.80)
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+200
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+100
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+12.0(11.00, 13.00)
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+200
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

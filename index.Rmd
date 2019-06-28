@@ -1,0 +1,12 @@
+---
+title: "Applying to a demography table"
+author: 
+date: 
+output: html_document
+---
+
+The following few pages are an exploration of ways of defining a data structure for a dataframe containing all of the values within a CSR style tabular report. 
+
+The way the dataframes are created are not the primary concern, since if a final structure is agreed on programming of a suitable suite of functions to create the structure efficiently can begin.
+
+This exploration is agnostic about the package used to create the final table. In the exampls htmltable is used, but again if it can be demonstrated that the data structure can easily be converted to a table, this could be replaced with any desired tabulation package, or even different packages for rendering to different formats.

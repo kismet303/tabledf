@@ -1,0 +1,13 @@
+name: "Report data structures"
+output_dir: docs
+navbar:
+  title: "Report data structures"
+  left:
+    - text: "About"
+      href: index.html
+    - text: "Part 1: Introduction"
+      href: reporting_data_structure.html
+    - text: "Part 2: Demographics"
+      href: demog_data_structure.html
+    - text: "Part 3: Defining common structure"
+      href: data_structure_graphic.html

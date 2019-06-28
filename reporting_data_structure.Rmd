@@ -1,7 +1,7 @@
 ---
 title: "Standardised data structure for table report"
-author: "Matthew Brierley"
-date: "16/05/2019"
+author: 
+date: 
 output: html_document
 ---
 
