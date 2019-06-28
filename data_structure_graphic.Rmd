@@ -9,6 +9,6 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r pressure, echo=FALSE, fig.cap="A caption", out.width = '100%'}
-knitr::include_graphics("temp.png")
+```{r pressure, echo=FALSE, fig.cap="From gt", out.width = '100%'}
+knitr::include_graphics("images/gt_parts_of_a_table.svg")
 ```
