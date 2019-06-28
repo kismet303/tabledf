@@ -1,0 +1,260 @@
+---
+title: "Standardised data structure for table report"
+author: "Matthew Brierley"
+date: "16/05/2019"
+output: html_document
+---
+
+### Problem Statement
+
+Consider the following CSR style report
+
+```{r}
+suppressPackageStartupMessages(library(tidyverse))
+library(htmlTable)
+
+report <- tribble(
+  ~label, ~n_a, ~events_a, ~median_ci_a,  ~n_b, ~events_b, ~median_ci_b,
+  "All patients",  "200",  "100",  "8.0 [7.2, 8.8]",  "200", "80", "12.0[11.0, 13.0]",
+  "Male",          "102",  "50",  "8.0 [6.5, 9.5]",  "97", "42", "12.1[10.5, 13.5]",
+  "Female",         "98",  "50",  "8.0 [6.5, 9.5]",  "103", "38", "12.0[10.4, 13.6]"
+)
+
+htmlTable(report,
+          rnames = FALSE,
+          align = "lc",
+          css.cell = "padding-left: .5em; padding-right: .2em;",
+          col.rgroup = c("none", "#F7F7F7"),
+          n.cgroup = c(1,3,3),
+          cgroup = c("", "Treatment A", "Treatment B"), 
+          header = c("", "n", "Events", "Median (95% CI)", "n", "Events", "Median (95% CI)"),
+          rgroup = c("", "Sex"),
+          n.rgroup=c(1,2)
+)
+```
+
+We would like to define a **standardized data structure** that stores the raw values displayed in the report. We would like to take a `tidyverse` approach since `tidyverse` is well-known and the data structures will not be large.
+We do not necesarily need to use `htmlTable` for the final table report. Data summarizing and data reporting are completely separated out.
+
+**The benefits of this:**
+
+* Can have a single or minimal suite of validated functions that map the data frame to a final table to which can increase reporting efficiency
+* Can also create plots from the same data structure ensuring output consistency
+* Can store each dataframe that is associated with a report and compare against different versions to programmatically identify changes to values across different data cuts within a study
+* Can place data sets in a larger database and retreieve and combine results from different studies within a project because results are saved in a consistent way.
+
+**Challenges:**
+
+* Table report requires a charater string. We want to store numeric values. When should conversion take place?
+* Some table cells suce as the confidence intervals are comprised of 3 different values.
+* The layout of the final table may be quite varied. May required spanning columns, repeating by differenent time-points or poulations, may require controlled breaking for pagination.
+* The same summary parameters may not be combined in the same way in different tables, need to be ably to flexibly specify how to combine raw values.
+
+Here is an initial suggestion for the structure of the data frame:
+```{r}
+raw <- tribble(
+  ~label, ~column, ~param, ~value,
+  "All patients", "Treatment A", "n", 200,
+  "All patients", "Treatment A", "events", 100,
+  "All patients", "Treatment A", "median", 8.0,
+  "All patients", "Treatment A", "median_ci_low", 7.2,
+  "All patients", "Treatment A", "median_ci_high", 8.8,
+  
+  "All patients", "Treatment B", "n", 200,
+  "All patients", "Treatment B", "events", 80,
+  "All patients", "Treatment B", "median", 12.0,
+  "All patients", "Treatment B", "median_ci_low", 11.0,
+  "All patients", "Treatment B", "median_ci_high", 13.0,
+  
+  "Male", "Treatment A", "n", 102,
+  "Male", "Treatment A", "events", 50,
+  "Male", "Treatment A", "median", 8.0,
+  "Male", "Treatment A", "median_ci_low", 6.5,
+  "Male", "Treatment A", "median_ci_high", 9.5,
+  
+  "Male", "Treatment B", "n", 97,
+  "Male", "Treatment B", "events",42,
+  "Male", "Treatment B", "median", 12.1,
+  "Male", "Treatment B", "median_ci_low", 10.5,
+  "Male", "Treatment B", "median_ci_high", 13.5,
+  
+  "Female", "Treatment A", "n", 98,
+  "Female", "Treatment A", "events", 50,
+  "Female", "Treatment A", "median", 8.0,
+  "Female", "Treatment A", "median_ci_low", 6.5,
+  "Female", "Treatment A", "median_ci_high", 9.5,
+  
+  "Female", "Treatment B", "n", 103,
+  "Female", "Treatment B", "events", 38,
+  "Female", "Treatment B", "median", 12.0,
+  "Female", "Treatment B", "median_ci_low", 10.4,
+  "Female", "Treatment B", "median_ci_high", 13.6,
+)
+
+knitr::kable(head(raw))
+```
+
+### Step 1: Combine values to match table cells 
+
+```{r}
+prep_report <-
+raw %>% 
+  filter(param %in% c("median", "median_ci_low", "median_ci_high")) %>% 
+  group_by(label, column) %>% 
+  summarise(valuec = paste0(value[1], "(", value[2], ",", value[3], ")")) %>% 
+  mutate(param = "median_ci") %>% 
+
+bind_rows(raw %>% 
+            filter(! param %in% c("median", "median_ci_low", "median_ci_high") ) %>% 
+            mutate(valuec = as.character(value)) %>% 
+            select(label, column, param, valuec)
+)
+
+knitr::kable(prep_report)
+
+```
+
+
+
+After this step each valuec in the data frame is exactly as it will apear in the report. There are many possible different parmaters and different ways that parameters in the proposed dataframe may be combined.
+E.g. ranges, mean(sd), confidence intervales, counts with percentages. Where are the instructions for the combining stored? In the initial data structure? as variables? as metadata. Indepently of the data structure? **This step seems very challenging to generalise**
+
+  
+### Step 2: Transpose and report 
+
+```{r}
+report <- 
+  prep_report %>% 
+  unite(col_p, column, param) %>% 
+  spread(col_p, valuec)
+
+htmlTable(report)
+
+```
+
+The second step should be much easier to generalize. Should be possible to have one or a very limited set of functions that map the intermediate dataframe to the final report. Challenges include supplying the final metadata added to the report e.g. (treatment ordering, column headers, column spanners, section labels)
+
+
+### Example using glue
+
+The code snippet below shows how we can use glue to specify the display format
+```{r}
+estimate <- 12.0
+ci_low <- 10.0
+ci_high <- 14.0
+
+values <-  list(estimate, ci_low, ci_high)
+names(values)  <- c("estimate", "ci_low", "ci_high")
+format <- "{estimate}({ci_low}, {ci_high})"
+purrr::map(values, formatC, format="f", digits=1) %>% glue::glue_data(format)
+
+```
+
+
+
+### Applying this to a result dataframe with formatting instructions
+```{r}
+raw <- tribble(
+  ~label, ~column, ~param, ~value, ~cell,  ~precision,  ~format, 
+  "All patients", "Treatment A", "n",           NA,  200, 0, NA,
+  "All patients", "Treatment A", "events",      NA,  100, 0, NA,
+  "All patients", "Treatment A", "median_ci",  "median", 8.0, 1, "{median}({median_ci_low}, {median_ci_high})",
+  "All patients", "Treatment A", "median_ci", "median_ci_low", 7.2, 2, "{median}({median_ci_low}, {median_ci_high})",
+  "All patients", "Treatment A", "median_ci",  "median_ci_high", 8.8, 2, "{median}({median_ci_low}, {median_ci_high})",
+  
+  "All patients", "Treatment B", "n",           NA,  200, 0, NA,
+  "All patients", "Treatment B", "events",      NA,  100, 0, NA,
+  "All patients", "Treatment B", "median_ci",  "median", 12.0, 1, "{median}({median_ci_low}, {median_ci_high})",
+  "All patients", "Treatment B", "median_ci", "median_ci_low", 11.0, 2, "{median}({median_ci_low}, {median_ci_high})",
+  "All patients", "Treatment B", "median_ci",  "median_ci_high", 13.0, 2, "{median}({median_ci_low}, {median_ci_high})"
+)
+
+knitr::kable(raw)
+
+```
+
+We can now define a function to collapse the intial dataframe from one row per reported value to one row to report cell. 
+
+
+```{r}
+prep_report <- function(data){
+    bind_rows(
+    data %>%
+      filter(is.na (value)) %>%
+      mutate(cellc = purrr::map2_chr(cell, precision, formatC, format="f"))
+    ,
+    data %>%
+      filter(!is.na(value)) %>%
+      mutate(cellc = purrr::map2_chr(cell, precision, formatC, format="f")) %>%
+      group_by(label, column, param, format) %>%
+      summarise(values = list(as.list(setNames(cellc, value)))) %>%
+      mutate(cellc=purrr::map2_chr(values, format, glue::glue_data))
+  ) %>%
+  select(label, column, param, cellc)
+  
+}
+
+prep_report(raw)
+
+```
+
+
+```{r}
+report <-
+  prep_report(raw) %>%
+  tidyr::unite(col_p, column, param) %>%
+  tidyr::spread(col_p, cellc)
+
+x <- htmlTable::htmlTable(report)
+x
+```
+
+This is one solution where the rules for collapsing multiple initial numeric variables into a single string and then transposing for the final data could work. However it may be frustrating to always embed the decoding rules within the dataframe. An alternative possibility could be to include a dictionary of decoding rules for each param. This may look something like this:
+
+
+```{r}
+display_dict <- tribble(
+  ~display, ~format, ~precision,
+  "ci",  "{estimate}[{ci_low},{ci_high}]", 2 ,
+  "count_percent", "{count}({percent})", 2,
+  "mean_sd", "{mean}({sd})", 2,
+  "range", "{min},{max}", 2
+)
+
+raw2 <- tribble(
+  ~label, ~column, ~param,  ~value, ~cell, ~display, 
+  "All patients", "Treatment A", "n",           NA,  200, NA,
+  "All patients", "Treatment A", "events",      NA,  100, NA,
+  "All patients", "Treatment A", "median_ci",  "estimate", 8.0, "ci",
+  "All patients", "Treatment A", "median_ci", "ci_low", 7.2, "ci",
+  "All patients", "Treatment A", "median_ci",  "ci_high", 8.8, "ci",
+  
+  "All patients", "Treatment B", "n",           NA,  200, NA,
+  "All patients", "Treatment B", "events",      NA,  100, NA,
+  "All patients", "Treatment B", "median_ci",  "estimate", 12.0, "ci",
+  "All patients", "Treatment B", "median_ci", "ci_low", 11.0, "ci",
+  "All patients", "Treatment B", "median_ci",  "ci_high", 13.0, "ci"
+)
+
+left_join(raw2, display_dict, by = "display") %>% 
+  mutate(precision = if_else(!is.na(precision), precision, 0)) %>% 
+  prep_report() %>% 
+  tidyr::unite(col_p, column, param) %>%
+  tidyr::spread(col_p, cellc)
+
+x <- htmlTable::htmlTable(report)
+x
+  
+```
+
+
+
+
+
+
+
+
+  
+
+
+

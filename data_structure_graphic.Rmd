@@ -1,0 +1,14 @@
+---
+title: "table_structure"
+author: "Matthew Brierley"
+date: "28/06/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r pressure, echo=FALSE, fig.cap="A caption", out.width = '100%'}
+knitr::include_graphics("temp.png")
+```

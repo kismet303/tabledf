@@ -1,0 +1,69 @@
+path_bee <- "/opt/bee/data/entimice/RO5541267/CDT30006/WO29636/ovad/"
+list.files(path_bee)
+ADAE <- readRDS(file.path(path_bee, "ADAE.rds"))
+ADSL <- readRDS(file.path(path_bee, "ADSL.rds"))
+
+library(dplyr)
+
+display_dict <- tribble(
+  ~display, ~format, ~precision,
+  "ci",  "{estimate}[{ci_low},{ci_high}]", 2 ,
+  "count_percent", "{count}({percent})", 2,
+  "mean_sd", "{mean}({sd})", 2,
+  "range", "{min},{max}", 2
+)
+
+desc_stats <- c("mean" = "mean_sd",
+                "sd" = "mean_sd",
+                "max" = "range",
+                "min" = "range",
+                "median" = "median")
+
+prep_report <- function(data){
+  bind_rows(
+    data %>%
+      filter(is.na (value)) %>%
+      mutate(cellc = purrr::map2_chr(cell, precision, formatC, format="f"))
+    ,
+    data %>%
+      filter(!is.na(value)) %>%
+      mutate(cellc = purrr::map2_chr(cell, precision, formatC, format="f")) %>%
+      group_by(section, label, column, param, format) %>%
+      summarise(values = list(as.list(setNames(cellc, value)))) %>%
+      mutate(cellc=purrr::map2_chr(values, format, glue::glue_data))
+  ) %>%
+    select(section, label, column, param, cellc)
+
+}
+
+ADSL <- random.cdisc.data::radsl() %>% mutate(BMI = rnorm(nrow(.), 23, 2))
+
+raw <- ADSL %>%
+  group_by(ARM) %>%
+  summarise_at(c("AGE", "BMI"),
+               list(mean=mean,
+                    max=max,
+                    min=min,
+                    sd=sd,
+                    median=median)) %>%
+  tidyr::gather(summary, cell, -ARM) %>%
+  tidyr::separate(summary, into=c("variable", "statistic")) %>%
+  mutate(display = desc_stats[statistic]) %>%
+  mutate(label= display) %>%
+  mutate(column = ARM) %>%
+  mutate(param = display) %>%
+  mutate(display = if_else(display!="median", display, NA_character_))%>%
+  mutate(value = if_else(!is.na(display), statistic, NA_character_)) %>%
+  mutate(section = variable)
+
+
+debugonce(prep_report)
+
+report <- left_join(raw, display_dict, by = "display") %>%
+  mutate(precision = if_else(!is.na(precision), precision, 0)) %>%
+  prep_report()
+
+report %>% tidyr::spread(column, cellc)
+
+x <- htmlTable::htmlTable(report)
+
