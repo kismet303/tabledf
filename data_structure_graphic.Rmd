@@ -44,5 +44,9 @@ Additional information required for conversion of this dataframe into a table:
 * **cell** single value that be need concatentation (n (%), confidence interval) to create the table cell content
 
 
+#### Limitations
 
+We have not considered table cells that require character values. This could be done in a CDISC like fashion by adding an optional `valuec` variable for reports that have this requirement.
+
+This mapping would not be useful for the creation of accompanying listings.
 

@@ -9,23 +9,21 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+In this section, we continue from the previous section, by exploring how the proposed ideas could apply to creating the summary of continuous variables for a table of demographics.
+We will borrow from the `display_dict` and the `prep_report` function defined in the previous section. Here there are some small modifications to include a section variable and a row variable to help with report presentation. Also, for now we remove the precision rules from the dictionary and hard code them into the data. We generate a random ADSL data frame to tabulate.
+
 ```{r}
 library(dplyr)
 
 display_dict <- tribble(
-  ~display, ~format, ~precision,
-  "ci",  "{estimate}[{ci_low},{ci_high}]", 2 ,
-  "count_percent", "{count}({percent})", 2,
-  "mean_sd", "{mean}({sd})", 2,
-  "range", "{min},{max}", 2
+  ~display, ~format,
+  "ci",  "{estimate}[{ci_low},{ci_high}]",
+  "count_percent", "{count}({percent})",
+  "mean_sd", "{mean}({sd})",
+  "range", "{min},{max}"
 )
 
-desc_stats <- c("mean" = "mean_sd",
-                "sd" = "mean_sd",
-                "max" = "range",
-                "min" = "range",
-                "median" = "median")
-
+#TODO: tidy this up and remove superfluous mutates
 prep_report <- function(data){
   bind_rows(
     data %>%
@@ -35,20 +33,49 @@ prep_report <- function(data){
     data %>%
       filter(!is.na(value)) %>%
       mutate(cellc = purrr::map2_chr(cell, precision, formatC, format="f")) %>%
-      group_by(section, label, column, param, format) %>%
+      group_by(section, row, label, column, param, format) %>%
       summarise(values = list(as.list(setNames(cellc, value)))) %>%
       mutate(cellc=purrr::map2_chr(values, format, glue::glue_data))
   ) %>%
-    select(section, label, column, param, cellc)
-
+    select(section, row, label, column, param, cellc)
+  
 }
 
 ADSL <- random.cdisc.data::radsl() %>% mutate(BMI = rnorm(nrow(.), 23, 2))
+```
+
+
+We define some named vectors which will map the calculated summary statistic to the display rule to lookup in the display dictionary and to the section row numbering of the report.
+
+Then we calculate the summary statistics by each treatment arm. The resulting data is once again in the form of the proposed standardized data structure with
+a single observation with each value.
+
+```{r}
+
+# This is too SAS: Proc format like. Should be a smarter way but shows the idea.
+desc_stats <- c("n" = "n",
+                 "mean" = "mean_sd",
+                 "sd" = "mean_sd",
+                 "max" = "range",
+                 "min" = "range",
+                 "median" = "median")
+
+desc_label <- c("mean_sd" = "Mean (SD)",
+                "range" = "Range",
+                "median" = "Median",
+                "n" = "N")
+
+desc_row <- c("n" = 1,
+              "mean_sd" = 2,
+              "median" = 3,
+              "range" = 4
+              )
 
 raw <- ADSL %>%
   group_by(ARM) %>%
   summarise_at(c("AGE", "BMI"),
-               list(mean=mean,
+               list(n = ~sum(!is.na(.)),
+                    mean=mean,
                     max=max,
                     min=min,
                     sd=sd,
@@ -56,23 +83,41 @@ raw <- ADSL %>%
   tidyr::gather(summary, cell, -ARM) %>%
   tidyr::separate(summary, into=c("variable", "statistic")) %>%
   mutate(display = desc_stats[statistic]) %>%
-  mutate(label= display) %>%
+  mutate(label= desc_label[display]) %>%
+  mutate(row = desc_row[display]) %>%
   mutate(column = ARM) %>%
   mutate(param = display) %>%
-  mutate(display = if_else(display!="median", display, NA_character_))%>%
+  mutate(display = if_else(! display %in% c("n", "median"), display, NA_character_))%>%
   mutate(value = if_else(!is.na(display), statistic, NA_character_)) %>%
-  mutate(section = variable)
+  mutate(section = variable) %>% 
+  arrange(section, row) %>% 
+  # this is not the way to do this!
+  mutate(precision = c( rep(c(0,1,2,0,0,0, 0,2,3,1,1,1), each = 3))) %>% 
+  select(section, variable, ARM, column, row, statistic, display, label, param, value, cell, precision)
 
 
+knitr::kable(head(raw))
+```
+
+
+Finally, we repeat the steps in the previous section: we combine the data frame with the display dictionary,  use `prep_report` to concatentate values into table cell values, transpose the data frame and create the report.
+
+```{r}
 report <- left_join(raw, display_dict, by = "display") %>%
-  mutate(precision = if_else(!is.na(precision), precision, 0)) %>%
-  prep_report()
+  prep_report() %>% 
+  tidyr::spread(column, cellc)
 
-report %>% tidyr::spread(column, cellc)
-
-x <- htmlTable::htmlTable(report)
+x <- htmlTable::htmlTable(select(report, -section, -param, -row),
+                          rnames = FALSE,
+                          align = "lc",
+                          css.cell = "padding-left: .5em; padding-right: .2em;",
+                          col.rgroup = c("none", "#F7F7F7"),
+                          rgroup = unique(report$section),
+                          n.rgroup = rep(4, times=length(unique(report$section)))
+                          )
 x
 
 ```
 
+This very basic example could obviously be improved, but serves as an illustration of the general idea. Need to think of a neater way of controlling the precision required in the output. It should be relatively straightforward to create some functions that take care of creating the numerical (and also similar for categorical) variable summaries.
 

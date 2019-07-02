@@ -308,22 +308,18 @@ $(document).ready(function () {
 </div>
 
 
+<p>In this section, we continue from the previous section, by exploring how the proposed ideas could apply to creating the summary of continuous variables for a table of demographics. We will borrow from the <code>display_dict</code> and the <code>prep_report</code> function defined in the previous section. Here there are some small modifications to include a section variable and a row variable to help with report presentation. Also, for now we remove the precision rules from the dictionary and hard code them into the data. We generate a random ADSL data frame to tabulate.</p>
 <pre class="r"><code>library(dplyr)
 
 display_dict &lt;- tribble(
-  ~display, ~format, ~precision,
-  &quot;ci&quot;,  &quot;{estimate}[{ci_low},{ci_high}]&quot;, 2 ,
-  &quot;count_percent&quot;, &quot;{count}({percent})&quot;, 2,
-  &quot;mean_sd&quot;, &quot;{mean}({sd})&quot;, 2,
-  &quot;range&quot;, &quot;{min},{max}&quot;, 2
+  ~display, ~format,
+  &quot;ci&quot;,  &quot;{estimate}[{ci_low},{ci_high}]&quot;,
+  &quot;count_percent&quot;, &quot;{count}({percent})&quot;,
+  &quot;mean_sd&quot;, &quot;{mean}({sd})&quot;,
+  &quot;range&quot;, &quot;{min},{max}&quot;
 )
 
-desc_stats &lt;- c(&quot;mean&quot; = &quot;mean_sd&quot;,
-                &quot;sd&quot; = &quot;mean_sd&quot;,
-                &quot;max&quot; = &quot;range&quot;,
-                &quot;min&quot; = &quot;range&quot;,
-                &quot;median&quot; = &quot;median&quot;)
-
+#TODO: tidy this up and remove superfluous mutates
 prep_report &lt;- function(data){
   bind_rows(
     data %&gt;%
@@ -333,20 +329,41 @@ prep_report &lt;- function(data){
     data %&gt;%
       filter(!is.na(value)) %&gt;%
       mutate(cellc = purrr::map2_chr(cell, precision, formatC, format=&quot;f&quot;)) %&gt;%
-      group_by(section, label, column, param, format) %&gt;%
+      group_by(section, row, label, column, param, format) %&gt;%
       summarise(values = list(as.list(setNames(cellc, value)))) %&gt;%
       mutate(cellc=purrr::map2_chr(values, format, glue::glue_data))
   ) %&gt;%
-    select(section, label, column, param, cellc)
-
+    select(section, row, label, column, param, cellc)
+  
 }
 
-ADSL &lt;- random.cdisc.data::radsl() %&gt;% mutate(BMI = rnorm(nrow(.), 23, 2))
+ADSL &lt;- random.cdisc.data::radsl() %&gt;% mutate(BMI = rnorm(nrow(.), 23, 2))</code></pre>
+<p>We define some named vectors which will map the calculated summary statistic to the display rule to lookup in the display dictionary and to the section row numbering of the report.</p>
+<p>Then we calculate the summary statistics by each treatment arm. The resulting data is once again in the form of the proposed standardized data structure with a single observation with each value.</p>
+<pre class="r"><code># This is too SAS: Proc format like. Should be a smarter way but shows the idea.
+desc_stats &lt;- c(&quot;n&quot; = &quot;n&quot;,
+                 &quot;mean&quot; = &quot;mean_sd&quot;,
+                 &quot;sd&quot; = &quot;mean_sd&quot;,
+                 &quot;max&quot; = &quot;range&quot;,
+                 &quot;min&quot; = &quot;range&quot;,
+                 &quot;median&quot; = &quot;median&quot;)
+
+desc_label &lt;- c(&quot;mean_sd&quot; = &quot;Mean (SD)&quot;,
+                &quot;range&quot; = &quot;Range&quot;,
+                &quot;median&quot; = &quot;Median&quot;,
+                &quot;n&quot; = &quot;N&quot;)
+
+desc_row &lt;- c(&quot;n&quot; = 1,
+              &quot;mean_sd&quot; = 2,
+              &quot;median&quot; = 3,
+              &quot;range&quot; = 4
+              )
 
 raw &lt;- ADSL %&gt;%
   group_by(ARM) %&gt;%
   summarise_at(c(&quot;AGE&quot;, &quot;BMI&quot;),
-               list(mean=mean,
+               list(n = ~sum(!is.na(.)),
+                    mean=mean,
                     max=max,
                     min=min,
                     sd=sd,
@@ -354,415 +371,281 @@ raw &lt;- ADSL %&gt;%
   tidyr::gather(summary, cell, -ARM) %&gt;%
   tidyr::separate(summary, into=c(&quot;variable&quot;, &quot;statistic&quot;)) %&gt;%
   mutate(display = desc_stats[statistic]) %&gt;%
-  mutate(label= display) %&gt;%
+  mutate(label= desc_label[display]) %&gt;%
+  mutate(row = desc_row[display]) %&gt;%
   mutate(column = ARM) %&gt;%
   mutate(param = display) %&gt;%
-  mutate(display = if_else(display!=&quot;median&quot;, display, NA_character_))%&gt;%
+  mutate(display = if_else(! display %in% c(&quot;n&quot;, &quot;median&quot;), display, NA_character_))%&gt;%
   mutate(value = if_else(!is.na(display), statistic, NA_character_)) %&gt;%
-  mutate(section = variable)
+  mutate(section = variable) %&gt;% 
+  arrange(section, row) %&gt;% 
+  # this is not the way to do this!
+  mutate(precision = c( rep(c(0,1,2,0,0,0, 0,2,3,1,1,1), each = 3))) %&gt;% 
+  select(section, variable, ARM, column, row, statistic, display, label, param, value, cell, precision)
 
 
-report &lt;- left_join(raw, display_dict, by = &quot;display&quot;) %&gt;%
-  mutate(precision = if_else(!is.na(precision), precision, 0)) %&gt;%
-  prep_report()</code></pre>
-<pre><code>## Warning: Column `display` has different attributes on LHS and RHS of join</code></pre>
-<pre class="r"><code>report %&gt;% tidyr::spread(column, cellc)</code></pre>
-<pre><code>## # A tibble: 6 x 6
-##   section label   param   `A: Drug X`  `B: Placebo` `C: Combination`
-##   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;        &lt;chr&gt;        &lt;chr&gt;           
-## 1 AGE     mean_sd mean_sd 44.03(17.21) 42.13(18.53) 41.85(15.42)    
-## 2 AGE     median  median  44           42           42              
-## 3 AGE     range   range   20.00,85.00  20.00,101.00 20.00,89.00     
-## 4 BMI     mean_sd mean_sd 23.05(1.91)  22.97(2.23)  23.33(1.78)     
-## 5 BMI     median  median  23           23           23              
-## 6 BMI     range   range   17.20,28.13  15.68,28.49  18.35,27.29</code></pre>
-<pre class="r"><code>x &lt;- htmlTable::htmlTable(report)
+knitr::kable(head(raw))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">section</th>
+<th align="left">variable</th>
+<th align="left">ARM</th>
+<th align="left">column</th>
+<th align="right">row</th>
+<th align="left">statistic</th>
+<th align="left">display</th>
+<th align="left">label</th>
+<th align="left">param</th>
+<th align="left">value</th>
+<th align="right">cell</th>
+<th align="right">precision</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">AGE</td>
+<td align="left">AGE</td>
+<td align="left">A: Drug X</td>
+<td align="left">A: Drug X</td>
+<td align="right">1</td>
+<td align="left">n</td>
+<td align="left">NA</td>
+<td align="left">N</td>
+<td align="left">n</td>
+<td align="left">NA</td>
+<td align="right">123.00000</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">AGE</td>
+<td align="left">AGE</td>
+<td align="left">B: Placebo</td>
+<td align="left">B: Placebo</td>
+<td align="right">1</td>
+<td align="left">n</td>
+<td align="left">NA</td>
+<td align="left">N</td>
+<td align="left">n</td>
+<td align="left">NA</td>
+<td align="right">147.00000</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">AGE</td>
+<td align="left">AGE</td>
+<td align="left">C: Combination</td>
+<td align="left">C: Combination</td>
+<td align="right">1</td>
+<td align="left">n</td>
+<td align="left">NA</td>
+<td align="left">N</td>
+<td align="left">n</td>
+<td align="left">NA</td>
+<td align="right">130.00000</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">AGE</td>
+<td align="left">AGE</td>
+<td align="left">A: Drug X</td>
+<td align="left">A: Drug X</td>
+<td align="right">2</td>
+<td align="left">mean</td>
+<td align="left">mean_sd</td>
+<td align="left">Mean (SD)</td>
+<td align="left">mean_sd</td>
+<td align="left">mean</td>
+<td align="right">42.97561</td>
+<td align="right">1</td>
+</tr>
+<tr class="odd">
+<td align="left">AGE</td>
+<td align="left">AGE</td>
+<td align="left">B: Placebo</td>
+<td align="left">B: Placebo</td>
+<td align="right">2</td>
+<td align="left">mean</td>
+<td align="left">mean_sd</td>
+<td align="left">Mean (SD)</td>
+<td align="left">mean_sd</td>
+<td align="left">mean</td>
+<td align="right">39.33333</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="left">AGE</td>
+<td align="left">AGE</td>
+<td align="left">C: Combination</td>
+<td align="left">C: Combination</td>
+<td align="right">2</td>
+<td align="left">mean</td>
+<td align="left">mean_sd</td>
+<td align="left">Mean (SD)</td>
+<td align="left">mean_sd</td>
+<td align="left">mean</td>
+<td align="right">41.70000</td>
+<td align="right">1</td>
+</tr>
+</tbody>
+</table>
+<p>Finally, we repeat the steps in the previous section: we combine the data frame with the display dictionary, use <code>prep_report</code> to concatentate values into table cell values, transpose the data frame and create the report.</p>
+<pre class="r"><code>report &lt;- left_join(raw, display_dict, by = &quot;display&quot;) %&gt;%
+  prep_report() %&gt;% 
+  tidyr::spread(column, cellc)
+
+x &lt;- htmlTable::htmlTable(select(report, -section, -param, -row),
+                          rnames = FALSE,
+                          align = &quot;lc&quot;,
+                          css.cell = &quot;padding-left: .5em; padding-right: .2em;&quot;,
+                          col.rgroup = c(&quot;none&quot;, &quot;#F7F7F7&quot;),
+                          rgroup = unique(report$section),
+                          n.rgroup = rep(4, times=length(unique(report$section)))
+                          )
 x</code></pre>
 <table class="gmisc_table" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
 <thead>
 <tr>
-<th style="border-bottom: 1px solid grey; border-top: 2px solid grey;">
-</th>
-<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
-section
-</th>
 <th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
 label
 </th>
 <th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
-column
+A: Drug X
 </th>
 <th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
-param
+B: Placebo
 </th>
 <th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
-cellc
+C: Combination
 </th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;">
-1
-</td>
-<td style="text-align: center;">
+<td colspan="4" style="font-weight: 900;">
 AGE
 </td>
-<td style="text-align: center;">
-median
+</tr>
+<tr>
+<td style="padding-left: .5em; padding-right: .2em; text-align: left;">
+N
 </td>
-<td style="text-align: center;">
-A: Drug X
+<td style="padding-left: .5em; padding-right: .2em; text-align: center;">
+123
 </td>
-<td style="text-align: center;">
-median
+<td style="padding-left: .5em; padding-right: .2em; text-align: center;">
+147
 </td>
-<td style="text-align: center;">
-44
+<td style="padding-left: .5em; padding-right: .2em; text-align: center;">
+130
 </td>
 </tr>
 <tr>
-<td style="text-align: left;">
-2
+<td style="padding-left: .5em; padding-right: .2em; text-align: left;">
+Mean (SD)
 </td>
-<td style="text-align: center;">
-AGE
+<td style="padding-left: .5em; padding-right: .2em; text-align: center;">
+43.0(19.11)
 </td>
-<td style="text-align: center;">
-median
+<td style="padding-left: .5em; padding-right: .2em; text-align: center;">
+39.3(15.14)
 </td>
-<td style="text-align: center;">
-B: Placebo
-</td>
-<td style="text-align: center;">
-median
-</td>
-<td style="text-align: center;">
-42
+<td style="padding-left: .5em; padding-right: .2em; text-align: center;">
+41.7(17.86)
 </td>
 </tr>
 <tr>
-<td style="text-align: left;">
-3
+<td style="padding-left: .5em; padding-right: .2em; text-align: left;">
+Median
 </td>
-<td style="text-align: center;">
-AGE
+<td style="padding-left: .5em; padding-right: .2em; text-align: center;">
+41
 </td>
-<td style="text-align: center;">
-median
+<td style="padding-left: .5em; padding-right: .2em; text-align: center;">
+39
 </td>
-<td style="text-align: center;">
-C: Combination
-</td>
-<td style="text-align: center;">
-median
-</td>
-<td style="text-align: center;">
-42
+<td style="padding-left: .5em; padding-right: .2em; text-align: center;">
+39
 </td>
 </tr>
 <tr>
-<td style="text-align: left;">
-4
+<td style="padding-left: .5em; padding-right: .2em; text-align: left;">
+Range
 </td>
-<td style="text-align: center;">
+<td style="padding-left: .5em; padding-right: .2em; text-align: center;">
+20,117
+</td>
+<td style="padding-left: .5em; padding-right: .2em; text-align: center;">
+20,88
+</td>
+<td style="padding-left: .5em; padding-right: .2em; text-align: center;">
+20,86
+</td>
+</tr>
+<tr>
+<td colspan="4" style="font-weight: 900; background-color: #f7f7f7;">
 BMI
 </td>
-<td style="text-align: center;">
-median
+</tr>
+<tr style="background-color: #f7f7f7;">
+<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: left;">
+N
 </td>
-<td style="text-align: center;">
-A: Drug X
+<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
+123
 </td>
-<td style="text-align: center;">
-median
+<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
+147
 </td>
-<td style="text-align: center;">
-23
+<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
+130
 </td>
 </tr>
-<tr>
-<td style="text-align: left;">
-5
+<tr style="background-color: #f7f7f7;">
+<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: left;">
+Mean (SD)
 </td>
-<td style="text-align: center;">
-BMI
+<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
+22.94(1.885)
 </td>
-<td style="text-align: center;">
-median
+<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
+22.87(2.081)
 </td>
-<td style="text-align: center;">
-B: Placebo
-</td>
-<td style="text-align: center;">
-median
-</td>
-<td style="text-align: center;">
-23
+<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
+23.10(2.006)
 </td>
 </tr>
-<tr>
-<td style="text-align: left;">
-6
+<tr style="background-color: #f7f7f7;">
+<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: left;">
+Median
 </td>
-<td style="text-align: center;">
-BMI
+<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
+22.8
 </td>
-<td style="text-align: center;">
-median
+<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
+22.9
 </td>
-<td style="text-align: center;">
-C: Combination
-</td>
-<td style="text-align: center;">
-median
-</td>
-<td style="text-align: center;">
-23
+<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
+23.1
 </td>
 </tr>
-<tr>
-<td style="text-align: left;">
-7
+<tr style="background-color: #f7f7f7;">
+<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; border-bottom: 2px solid grey; text-align: left;">
+Range
 </td>
-<td style="text-align: center;">
-AGE
+<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; border-bottom: 2px solid grey; text-align: center;">
+19.1,27.1
 </td>
-<td style="text-align: center;">
-mean_sd
+<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; border-bottom: 2px solid grey; text-align: center;">
+16.5,27.7
 </td>
-<td style="text-align: center;">
-A: Drug X
-</td>
-<td style="text-align: center;">
-mean_sd
-</td>
-<td style="text-align: center;">
-44.03(17.21)
-</td>
-</tr>
-<tr>
-<td style="text-align: left;">
-8
-</td>
-<td style="text-align: center;">
-AGE
-</td>
-<td style="text-align: center;">
-mean_sd
-</td>
-<td style="text-align: center;">
-B: Placebo
-</td>
-<td style="text-align: center;">
-mean_sd
-</td>
-<td style="text-align: center;">
-42.13(18.53)
-</td>
-</tr>
-<tr>
-<td style="text-align: left;">
-9
-</td>
-<td style="text-align: center;">
-AGE
-</td>
-<td style="text-align: center;">
-mean_sd
-</td>
-<td style="text-align: center;">
-C: Combination
-</td>
-<td style="text-align: center;">
-mean_sd
-</td>
-<td style="text-align: center;">
-41.85(15.42)
-</td>
-</tr>
-<tr>
-<td style="text-align: left;">
-10
-</td>
-<td style="text-align: center;">
-AGE
-</td>
-<td style="text-align: center;">
-range
-</td>
-<td style="text-align: center;">
-A: Drug X
-</td>
-<td style="text-align: center;">
-range
-</td>
-<td style="text-align: center;">
-20.00,85.00
-</td>
-</tr>
-<tr>
-<td style="text-align: left;">
-11
-</td>
-<td style="text-align: center;">
-AGE
-</td>
-<td style="text-align: center;">
-range
-</td>
-<td style="text-align: center;">
-B: Placebo
-</td>
-<td style="text-align: center;">
-range
-</td>
-<td style="text-align: center;">
-20.00,101.00
-</td>
-</tr>
-<tr>
-<td style="text-align: left;">
-12
-</td>
-<td style="text-align: center;">
-AGE
-</td>
-<td style="text-align: center;">
-range
-</td>
-<td style="text-align: center;">
-C: Combination
-</td>
-<td style="text-align: center;">
-range
-</td>
-<td style="text-align: center;">
-20.00,89.00
-</td>
-</tr>
-<tr>
-<td style="text-align: left;">
-13
-</td>
-<td style="text-align: center;">
-BMI
-</td>
-<td style="text-align: center;">
-mean_sd
-</td>
-<td style="text-align: center;">
-A: Drug X
-</td>
-<td style="text-align: center;">
-mean_sd
-</td>
-<td style="text-align: center;">
-23.05(1.91)
-</td>
-</tr>
-<tr>
-<td style="text-align: left;">
-14
-</td>
-<td style="text-align: center;">
-BMI
-</td>
-<td style="text-align: center;">
-mean_sd
-</td>
-<td style="text-align: center;">
-B: Placebo
-</td>
-<td style="text-align: center;">
-mean_sd
-</td>
-<td style="text-align: center;">
-22.97(2.23)
-</td>
-</tr>
-<tr>
-<td style="text-align: left;">
-15
-</td>
-<td style="text-align: center;">
-BMI
-</td>
-<td style="text-align: center;">
-mean_sd
-</td>
-<td style="text-align: center;">
-C: Combination
-</td>
-<td style="text-align: center;">
-mean_sd
-</td>
-<td style="text-align: center;">
-23.33(1.78)
-</td>
-</tr>
-<tr>
-<td style="text-align: left;">
-16
-</td>
-<td style="text-align: center;">
-BMI
-</td>
-<td style="text-align: center;">
-range
-</td>
-<td style="text-align: center;">
-A: Drug X
-</td>
-<td style="text-align: center;">
-range
-</td>
-<td style="text-align: center;">
-17.20,28.13
-</td>
-</tr>
-<tr>
-<td style="text-align: left;">
-17
-</td>
-<td style="text-align: center;">
-BMI
-</td>
-<td style="text-align: center;">
-range
-</td>
-<td style="text-align: center;">
-B: Placebo
-</td>
-<td style="text-align: center;">
-range
-</td>
-<td style="text-align: center;">
-15.68,28.49
-</td>
-</tr>
-<tr>
-<td style="border-bottom: 2px solid grey; text-align: left;">
-18
-</td>
-<td style="border-bottom: 2px solid grey; text-align: center;">
-BMI
-</td>
-<td style="border-bottom: 2px solid grey; text-align: center;">
-range
-</td>
-<td style="border-bottom: 2px solid grey; text-align: center;">
-C: Combination
-</td>
-<td style="border-bottom: 2px solid grey; text-align: center;">
-range
-</td>
-<td style="border-bottom: 2px solid grey; text-align: center;">
-18.35,27.29
+<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; border-bottom: 2px solid grey; text-align: center;">
+18.1,28.2
 </td>
 </tr>
 </tbody>
 </table>
+<p>This very basic example could obviously be improved, but serves as an illustration of the general idea. Need to think of a neater way of controlling the precision required in the output. It should be relatively straightforward to create some functions that take care of creating the numerical (and also similar for categorical) variable summaries.</p>
 
 
 
