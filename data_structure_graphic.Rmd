@@ -1,5 +1,5 @@
 ---
-title: "Table structure"
+title: "Report table structure"
 author: 
 date: 
 output: html_document
@@ -9,28 +9,31 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r pressure, echo=FALSE, fig.cap="From gt", out.width = '100%'}
+```{r pressure, echo=FALSE, fig.cap="Figure taken from the gt package", out.width = '100%'}
 knitr::include_graphics("images/gt_parts_of_a_table.svg")
 ```
 
-The above graphic explaining the api for the gt package provides a good initial basis to begin thinking about a data structure that can be mapped to a table.
+The above graphic explaining the api for the [gt package](https://gt.rstudio.com/) provides a good initial basis to begin thinking about a data frame structure that can be mapped to a table report.
 
-As a remainder from previous discussion the proposal would be to define a data  structure in a long format with one observation per unique value presented in the table. What is denoted as a cell in the graphic may represent the concatanation of 3 values (in the case the cell contains a confidence interval)
+As a remainder from previous discussion the proposal would be to define a data  structure in a long format with one observation per unique value presented in the table. What is denoted as a cell in the graphic may represent the concatanation of multiple original values (in the case the cell contains an estimate with associated confidence interval this would be 3 values).
 
-For clinical report table the stub of the table may require for than a single row label column. Maybe a maximum of three levels to cover by time period, by treatment arm, by label would suffice. Additional often a by-group is applied, and the table is repeated by different categories within a by-group
+For clinical report tables the stub of the table may require more than a single row label column. Maybe a maximum of three levels to cover tables where the summaries are displayed by time period, by paramater and by multiple statistics. Additionally, many tables are repeated across values of a by-group variable.
 
 ####Variables in the initial dataframe
 
 WIP(maybe better to switch to more CDISC like nomenclature??)
 
 * **subgroup**(optional): partition the entire table by levels of this variable.
-* **section** horizontal sections of the table
 * **column** column headers for the table
-* **sub-column**(optional): additional variable which if specfied would be nested under a spanning header of column values. I.e break down demographics table by Arm and sex.
-* **value** single value that be need concatentation (n (%), confidence interval) to create the table cell content
-* **label** row label element of the table
-* **display** a term which will drive (with a dictionary of display terms) the conversion of values to cells
-* **precision** (ideally this would be incorporated into display). Rounding precision applied when converting numeric values into character cell values
+* **sub-column**(optional): additional variable which if specfied would be nested under a spanning header of column values. I.e break down
+ demographics table by Arm and sex.
+* **section** horizontal sections of the table
+* **section_label** (optional) denoted as ROW_GROUP_LABEL in the diagram. If missing could default to section value.
+* **row_n**(optional?) unique idenitifer within column*section for controlling section level ordering.
+* **value** single numeric value that may require concatentation with other values (n (%), confidence interval) to create the table cell contents.
+* **label** (better row_label??) row label element of the table
+* **display** a term which will drive (with a dictionary of display terms) the conversion of values to cells depending on the display rule.
+* **precision** (ideally this would be incorporated into display somehow. Maybe displayN). Rounding precision applied when converting numeric values into character cell values.
 
 
 Additional information required for conversion of this dataframe into a table:
@@ -38,15 +41,25 @@ Additional information required for conversion of this dataframe into a table:
 **row group label**(see graphic) information.
 
 #### Variables in the intermediate dataframe
-* **section** horizontal sections of the table
+
+* **subgroup**(optional): partition the entire table by levels of this variable.
 * **column** column headers for the table
-* **sub-column**(optional): additional variable which if specfied would be nested under a spanning header of column values. I.e break down demographics table by Arm and sex.
+* **sub-column**(optional): additional variable which if specfied would be nested under a spanning header of column values. I.e break down
+ demographics table by Arm and sex.
+* **section** horizontal sections of the table
+* **section_label** (optional) denoted as ROW_GROUP_LABEL in the diagram. If missing could default to section value.
+* **row_n**(optional?) unique idenitifer within column*section for controlling section level ordering.
+* **label** row label element of the table
 * **cell** single value that be need concatentation (n (%), confidence interval) to create the table cell content
 
 
 #### Limitations
 
-We have not considered table cells that require character values. This could be done in a CDISC like fashion by adding an optional `valuec` variable for reports that have this requirement.
+We have not considered table cells that require character values. For tables with a few character values this could be done in a CDISC like fashion by adding an optional `valuec` variable for reports that have this requirement though for tables comprising a lot of text this may still be insufficent. This mapping would not be useful for the creation of accompanying listings.
 
-This mapping would not be useful for the creation of accompanying listings.
+### Extensions
+
+It may be desirable to add futher variables adding traceability of methods used to create the values in the standardized data frame. E.g. What statistical modelling was performed.
+
+The advantage of having standardized data frame means that it should be possible to store this data and access it through some API to permit fast retrieval of values from tables. Depending on upstream storage and API design it may be interesting to further convert the dataframe to JSON structures. Although it may be sufficient to just load the data into SQL databases with associated metadata.
 
