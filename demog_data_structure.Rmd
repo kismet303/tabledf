@@ -16,28 +16,32 @@ We will borrow from the `display_dict` and the `prep_report` function defined in
 library(dplyr)
 
 display_dict <- tribble(
-  ~display, ~format,
+  ~cell_type, ~format,
   "ci",  "{estimate}[{ci_low},{ci_high}]",
   "count_percent", "{count}({percent})",
   "mean_sd", "{mean}({sd})",
   "range", "{min},{max}"
 )
 
-#TODO: tidy this up and remove superfluous mutates
+# collapse report values into report cells
 prep_report <- function(data){
+  value_is_cell <- c("n", "median")
+  
+  
   bind_rows(
     data %>%
-      filter(is.na (value)) %>%
-      mutate(cellc = purrr::map2_chr(cell, precision, formatC, format="f"))
+      filter(cell_type %in% value_is_cell) %>%
+      mutate(cell = purrr::map2_chr(value, precision, formatC, format="f"))
     ,
     data %>%
-      filter(!is.na(value)) %>%
-      mutate(cellc = purrr::map2_chr(cell, precision, formatC, format="f")) %>%
-      group_by(section, row, label, column, param, format) %>%
-      summarise(values = list(as.list(setNames(cellc, value)))) %>%
-      mutate(cellc=purrr::map2_chr(values, format, glue::glue_data))
+      filter(! cell_type %in% value_is_cell) %>%
+      mutate(cell = purrr::map2_chr(value, precision, formatC, format="f")) %>%
+      group_by(section, row, cell_type, column, format, label) %>%
+      summarise(values = list(as.list(setNames(cell, value_type)))) %>%
+      mutate(cell=purrr::map2_chr(values, format, glue::glue_data)) %>% 
+      ungroup()
   ) %>%
-    select(section, row, label, column, param, cellc)
+    select(section, row, label, column, cell)
   
 }
 
@@ -71,6 +75,8 @@ desc_row <- c("n" = 1,
               "range" = 4
               )
 
+
+# TO DO tidy this up and remove superflous mutates
 raw <- ADSL %>%
   group_by(ARM) %>%
   summarise_at(c("AGE", "BMI"),
@@ -80,21 +86,18 @@ raw <- ADSL %>%
                     min=min,
                     sd=sd,
                     median=median)) %>%
-  tidyr::gather(summary, cell, -ARM) %>%
+  tidyr::gather(summary, value, -ARM) %>%
   tidyr::separate(summary, into=c("variable", "statistic")) %>%
-  mutate(display = desc_stats[statistic]) %>%
-  mutate(label= desc_label[display]) %>%
-  mutate(row = desc_row[display]) %>%
-  mutate(column = ARM) %>%
-  mutate(param = display) %>%
-  mutate(display = if_else(! display %in% c("n", "median"), display, NA_character_))%>%
-  mutate(value = if_else(!is.na(display), statistic, NA_character_)) %>%
-  mutate(section = variable) %>% 
+  mutate(cell_type = desc_stats[statistic]) %>%
+  mutate(label = desc_label[cell_type]) %>%
+  mutate(row = desc_row[cell_type]) %>%
+  rename(column = ARM) %>%
+  rename(value_type =  statistic) %>%
+  rename(section = variable) %>% 
   arrange(section, row) %>% 
   # this is not the way to do this!
   mutate(precision = c( rep(c(0,1,2,0,0,0, 0,2,3,1,1,1), each = 3))) %>% 
-  select(section, variable, ARM, column, row, statistic, display, label, param, value, cell, precision)
-
+  select(section, column, row, label, cell_type, value_type, value, precision)
 
 knitr::kable(head(raw))
 ```
@@ -103,11 +106,11 @@ knitr::kable(head(raw))
 Finally, we repeat the steps in the previous section: we combine the data frame with the display dictionary,  use `prep_report` to concatentate values into table cell values, transpose the data frame and create the report.
 
 ```{r}
-report <- left_join(raw, display_dict, by = "display") %>%
+report <- left_join(raw, display_dict, by = "cell_type") %>%
   prep_report() %>% 
-  tidyr::spread(column, cellc)
+  tidyr::spread(column, cell)
 
-x <- htmlTable::htmlTable(select(report, -section, -param, -row),
+x <- htmlTable::htmlTable(select(report, -section, -row),
                           rnames = FALSE,
                           align = "lc",
                           css.cell = "padding-left: .5em; padding-right: .2em;",

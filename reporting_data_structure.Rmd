@@ -51,6 +51,8 @@ We do not necesarily need to use `htmlTable` for the final table report. Data su
 * The same summary parameters may not be combined in the same way in different tables, need to be ably to flexibly specify how to combine raw values.
 
 Here is an initial suggestion for the structure of the data frame:
+**Note:** the following two pages present improved variables names over those chosen here:
+**TODO:** evaluate/finalise variables names used in section3. Rewrite this example to be consistent.
 ```{r}
 raw <- tribble(
   ~label, ~column, ~param, ~value,

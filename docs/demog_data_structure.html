@@ -312,28 +312,32 @@ $(document).ready(function () {
 <pre class="r"><code>library(dplyr)
 
 display_dict &lt;- tribble(
-  ~display, ~format,
+  ~cell_type, ~format,
   &quot;ci&quot;,  &quot;{estimate}[{ci_low},{ci_high}]&quot;,
   &quot;count_percent&quot;, &quot;{count}({percent})&quot;,
   &quot;mean_sd&quot;, &quot;{mean}({sd})&quot;,
   &quot;range&quot;, &quot;{min},{max}&quot;
 )
 
-#TODO: tidy this up and remove superfluous mutates
+# collapse report values into report cells
 prep_report &lt;- function(data){
+  value_is_cell &lt;- c(&quot;n&quot;, &quot;median&quot;)
+  
+  
   bind_rows(
     data %&gt;%
-      filter(is.na (value)) %&gt;%
-      mutate(cellc = purrr::map2_chr(cell, precision, formatC, format=&quot;f&quot;))
+      filter(cell_type %in% value_is_cell) %&gt;%
+      mutate(cell = purrr::map2_chr(value, precision, formatC, format=&quot;f&quot;))
     ,
     data %&gt;%
-      filter(!is.na(value)) %&gt;%
-      mutate(cellc = purrr::map2_chr(cell, precision, formatC, format=&quot;f&quot;)) %&gt;%
-      group_by(section, row, label, column, param, format) %&gt;%
-      summarise(values = list(as.list(setNames(cellc, value)))) %&gt;%
-      mutate(cellc=purrr::map2_chr(values, format, glue::glue_data))
+      filter(! cell_type %in% value_is_cell) %&gt;%
+      mutate(cell = purrr::map2_chr(value, precision, formatC, format=&quot;f&quot;)) %&gt;%
+      group_by(section, row, cell_type, column, format, label) %&gt;%
+      summarise(values = list(as.list(setNames(cell, value_type)))) %&gt;%
+      mutate(cell=purrr::map2_chr(values, format, glue::glue_data)) %&gt;% 
+      ungroup()
   ) %&gt;%
-    select(section, row, label, column, param, cellc)
+    select(section, row, label, column, cell)
   
 }
 
@@ -359,6 +363,8 @@ desc_row &lt;- c(&quot;n&quot; = 1,
               &quot;range&quot; = 4
               )
 
+
+# TO DO tidy this up and remove superflous mutates
 raw &lt;- ADSL %&gt;%
   group_by(ARM) %&gt;%
   summarise_at(c(&quot;AGE&quot;, &quot;BMI&quot;),
@@ -368,133 +374,102 @@ raw &lt;- ADSL %&gt;%
                     min=min,
                     sd=sd,
                     median=median)) %&gt;%
-  tidyr::gather(summary, cell, -ARM) %&gt;%
+  tidyr::gather(summary, value, -ARM) %&gt;%
   tidyr::separate(summary, into=c(&quot;variable&quot;, &quot;statistic&quot;)) %&gt;%
-  mutate(display = desc_stats[statistic]) %&gt;%
-  mutate(label= desc_label[display]) %&gt;%
-  mutate(row = desc_row[display]) %&gt;%
-  mutate(column = ARM) %&gt;%
-  mutate(param = display) %&gt;%
-  mutate(display = if_else(! display %in% c(&quot;n&quot;, &quot;median&quot;), display, NA_character_))%&gt;%
-  mutate(value = if_else(!is.na(display), statistic, NA_character_)) %&gt;%
-  mutate(section = variable) %&gt;% 
+  mutate(cell_type = desc_stats[statistic]) %&gt;%
+  mutate(label = desc_label[cell_type]) %&gt;%
+  mutate(row = desc_row[cell_type]) %&gt;%
+  rename(column = ARM) %&gt;%
+  rename(value_type =  statistic) %&gt;%
+  rename(section = variable) %&gt;% 
   arrange(section, row) %&gt;% 
   # this is not the way to do this!
   mutate(precision = c( rep(c(0,1,2,0,0,0, 0,2,3,1,1,1), each = 3))) %&gt;% 
-  select(section, variable, ARM, column, row, statistic, display, label, param, value, cell, precision)
-
+  select(section, column, row, label, cell_type, value_type, value, precision)
 
 knitr::kable(head(raw))</code></pre>
 <table>
 <thead>
 <tr class="header">
 <th align="left">section</th>
-<th align="left">variable</th>
-<th align="left">ARM</th>
 <th align="left">column</th>
 <th align="right">row</th>
-<th align="left">statistic</th>
-<th align="left">display</th>
 <th align="left">label</th>
-<th align="left">param</th>
-<th align="left">value</th>
-<th align="right">cell</th>
+<th align="left">cell_type</th>
+<th align="left">value_type</th>
+<th align="right">value</th>
 <th align="right">precision</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td align="left">AGE</td>
-<td align="left">AGE</td>
-<td align="left">A: Drug X</td>
 <td align="left">A: Drug X</td>
 <td align="right">1</td>
-<td align="left">n</td>
-<td align="left">NA</td>
 <td align="left">N</td>
 <td align="left">n</td>
-<td align="left">NA</td>
-<td align="right">123.00000</td>
-<td align="right">0</td>
-</tr>
-<tr class="even">
-<td align="left">AGE</td>
-<td align="left">AGE</td>
-<td align="left">B: Placebo</td>
-<td align="left">B: Placebo</td>
-<td align="right">1</td>
 <td align="left">n</td>
-<td align="left">NA</td>
-<td align="left">N</td>
-<td align="left">n</td>
-<td align="left">NA</td>
 <td align="right">147.00000</td>
 <td align="right">0</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">AGE</td>
-<td align="left">AGE</td>
-<td align="left">C: Combination</td>
-<td align="left">C: Combination</td>
+<td align="left">B: Placebo</td>
 <td align="right">1</td>
-<td align="left">n</td>
-<td align="left">NA</td>
 <td align="left">N</td>
 <td align="left">n</td>
-<td align="left">NA</td>
-<td align="right">130.00000</td>
+<td align="left">n</td>
+<td align="right">120.00000</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">AGE</td>
+<td align="left">C: Combination</td>
+<td align="right">1</td>
+<td align="left">N</td>
+<td align="left">n</td>
+<td align="left">n</td>
+<td align="right">133.00000</td>
 <td align="right">0</td>
 </tr>
 <tr class="even">
 <td align="left">AGE</td>
-<td align="left">AGE</td>
-<td align="left">A: Drug X</td>
 <td align="left">A: Drug X</td>
 <td align="right">2</td>
-<td align="left">mean</td>
-<td align="left">mean_sd</td>
 <td align="left">Mean (SD)</td>
 <td align="left">mean_sd</td>
 <td align="left">mean</td>
-<td align="right">42.97561</td>
+<td align="right">43.38776</td>
 <td align="right">1</td>
 </tr>
 <tr class="odd">
 <td align="left">AGE</td>
-<td align="left">AGE</td>
-<td align="left">B: Placebo</td>
 <td align="left">B: Placebo</td>
 <td align="right">2</td>
-<td align="left">mean</td>
-<td align="left">mean_sd</td>
 <td align="left">Mean (SD)</td>
 <td align="left">mean_sd</td>
 <td align="left">mean</td>
-<td align="right">39.33333</td>
+<td align="right">43.13333</td>
 <td align="right">1</td>
 </tr>
 <tr class="even">
 <td align="left">AGE</td>
-<td align="left">AGE</td>
-<td align="left">C: Combination</td>
 <td align="left">C: Combination</td>
 <td align="right">2</td>
-<td align="left">mean</td>
-<td align="left">mean_sd</td>
 <td align="left">Mean (SD)</td>
 <td align="left">mean_sd</td>
 <td align="left">mean</td>
-<td align="right">41.70000</td>
+<td align="right">43.96241</td>
 <td align="right">1</td>
 </tr>
 </tbody>
 </table>
 <p>Finally, we repeat the steps in the previous section: we combine the data frame with the display dictionary, use <code>prep_report</code> to concatentate values into table cell values, transpose the data frame and create the report.</p>
-<pre class="r"><code>report &lt;- left_join(raw, display_dict, by = &quot;display&quot;) %&gt;%
+<pre class="r"><code>report &lt;- left_join(raw, display_dict, by = &quot;cell_type&quot;) %&gt;%
   prep_report() %&gt;% 
-  tidyr::spread(column, cellc)
+  tidyr::spread(column, cell)
 
-x &lt;- htmlTable::htmlTable(select(report, -section, -param, -row),
+x &lt;- htmlTable::htmlTable(select(report, -section, -row),
                           rnames = FALSE,
                           align = &quot;lc&quot;,
                           css.cell = &quot;padding-left: .5em; padding-right: .2em;&quot;,
@@ -531,13 +506,13 @@ AGE
 N
 </td>
 <td style="padding-left: .5em; padding-right: .2em; text-align: center;">
-123
-</td>
-<td style="padding-left: .5em; padding-right: .2em; text-align: center;">
 147
 </td>
 <td style="padding-left: .5em; padding-right: .2em; text-align: center;">
-130
+120
+</td>
+<td style="padding-left: .5em; padding-right: .2em; text-align: center;">
+133
 </td>
 </tr>
 <tr>
@@ -545,13 +520,13 @@ N
 Mean (SD)
 </td>
 <td style="padding-left: .5em; padding-right: .2em; text-align: center;">
-43.0(19.11)
+43.4(18.58)
 </td>
 <td style="padding-left: .5em; padding-right: .2em; text-align: center;">
-39.3(15.14)
+43.1(18.20)
 </td>
 <td style="padding-left: .5em; padding-right: .2em; text-align: center;">
-41.7(17.86)
+44.0(18.49)
 </td>
 </tr>
 <tr>
@@ -559,13 +534,13 @@ Mean (SD)
 Median
 </td>
 <td style="padding-left: .5em; padding-right: .2em; text-align: center;">
-41
+42
 </td>
 <td style="padding-left: .5em; padding-right: .2em; text-align: center;">
-39
+42
 </td>
 <td style="padding-left: .5em; padding-right: .2em; text-align: center;">
-39
+44
 </td>
 </tr>
 <tr>
@@ -573,13 +548,13 @@ Median
 Range
 </td>
 <td style="padding-left: .5em; padding-right: .2em; text-align: center;">
+20,89
+</td>
+<td style="padding-left: .5em; padding-right: .2em; text-align: center;">
 20,117
 </td>
 <td style="padding-left: .5em; padding-right: .2em; text-align: center;">
 20,88
-</td>
-<td style="padding-left: .5em; padding-right: .2em; text-align: center;">
-20,86
 </td>
 </tr>
 <tr>
@@ -592,13 +567,13 @@ BMI
 N
 </td>
 <td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
-123
-</td>
-<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
 147
 </td>
 <td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
-130
+120
+</td>
+<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
+133
 </td>
 </tr>
 <tr style="background-color: #f7f7f7;">
@@ -606,13 +581,13 @@ N
 Mean (SD)
 </td>
 <td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
-22.94(1.885)
+23.06(2.113)
 </td>
 <td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
-22.87(2.081)
+22.63(2.036)
 </td>
 <td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
-23.10(2.006)
+22.85(2.115)
 </td>
 </tr>
 <tr style="background-color: #f7f7f7;">
@@ -620,13 +595,13 @@ Mean (SD)
 Median
 </td>
 <td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
-22.8
-</td>
-<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
 22.9
 </td>
 <td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
-23.1
+22.5
+</td>
+<td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
+22.8
 </td>
 </tr>
 <tr style="background-color: #f7f7f7;">
@@ -634,13 +609,13 @@ Median
 Range
 </td>
 <td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; border-bottom: 2px solid grey; text-align: center;">
-19.1,27.1
+18.2,29.9
 </td>
 <td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; border-bottom: 2px solid grey; text-align: center;">
-16.5,27.7
+17.3,27.9
 </td>
 <td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; border-bottom: 2px solid grey; text-align: center;">
-18.1,28.2
+17.4,28.4
 </td>
 </tr>
 </tbody>
