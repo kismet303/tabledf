@@ -12,7 +12,7 @@
 <meta name="author" content="" />
 
 
-<title>Table structure</title>
+<title>Report table structure</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -303,48 +303,58 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Table structure</h1>
+<h1 class="title toc-ignore">Report table structure</h1>
 
 </div>
 
 
 <div class="figure">
-<img src="images/gt_parts_of_a_table.svg" alt="From gt" width="100%" />
+<img src="images/gt_parts_of_a_table.svg" alt="Figure taken from the gt package" width="100%" />
 <p class="caption">
-From gt
+Figure taken from the gt package
 </p>
 </div>
-<p>The above graphic explaining the api for the gt package provides a good initial basis to begin thinking about a data structure that can be mapped to a table.</p>
-<p>As a remainder from previous discussion the proposal would be to define a data structure in a long format with one observation per unique value presented in the table. What is denoted as a cell in the graphic may represent the concatanation of 3 values (in the case the cell contains a confidence interval)</p>
-<p>For clinical report table the stub of the table may require for than a single row label column. Maybe a maximum of three levels to cover by time period, by treatment arm, by label would suffice. Additional often a by-group is applied, and the table is repeated by different categories within a by-group</p>
+<p>The above graphic explaining the api for the <a href="https://gt.rstudio.com/">gt package</a> provides a good initial basis to begin thinking about a data frame structure that can be mapped to a table report.</p>
+<p>As a remainder from previous discussion the proposal would be to define a data structure in a long format with one observation per unique value presented in the table. What is denoted as a cell in the graphic may represent the concatanation of multiple original values (in the case the cell contains an estimate with associated confidence interval this would be 3 values).</p>
+<p>For clinical report tables the stub of the table may require more than a single row label column. Maybe a maximum of three levels to cover tables where the summaries are displayed by time period, by paramater and by multiple statistics. Additionally, many tables are repeated across values of a by-group variable.</p>
 <div id="variables-in-the-initial-dataframe" class="section level4">
 <h4>Variables in the initial dataframe</h4>
 <p>WIP(maybe better to switch to more CDISC like nomenclature??)</p>
 <ul>
 <li><strong>subgroup</strong>(optional): partition the entire table by levels of this variable.</li>
-<li><strong>section</strong> horizontal sections of the table</li>
 <li><strong>column</strong> column headers for the table</li>
 <li><strong>sub-column</strong>(optional): additional variable which if specfied would be nested under a spanning header of column values. I.e break down demographics table by Arm and sex.</li>
-<li><strong>value</strong> single value that be need concatentation (n (%), confidence interval) to create the table cell content</li>
-<li><strong>label</strong> row label element of the table</li>
-<li><strong>display</strong> a term which will drive (with a dictionary of display terms) the conversion of values to cells</li>
-<li><strong>precision</strong> (ideally this would be incorporated into display). Rounding precision applied when converting numeric values into character cell values</li>
+<li><strong>section</strong> horizontal sections of the table</li>
+<li><strong>section_label</strong> (optional) denoted as ROW_GROUP_LABEL in the diagram. If missing could default to section value.</li>
+<li><strong>row_n</strong>(optional?) unique idenitifer within column*section for controlling section level ordering.</li>
+<li><strong>value</strong> single numeric value that may require concatentation with other values (n (%), confidence interval) to create the table cell contents.</li>
+<li><strong>label</strong> (better row_label??) row label element of the table</li>
+<li><strong>display</strong> a term which will drive (with a dictionary of display terms) the conversion of values to cells depending on the display rule.</li>
+<li><strong>precision</strong> (ideally this would be incorporated into display somehow. Maybe displayN). Rounding precision applied when converting numeric values into character cell values.</li>
 </ul>
 <p>Additional information required for conversion of this dataframe into a table: <strong>display dictionary</strong>. <strong>row group label</strong>(see graphic) information.</p>
 </div>
 <div id="variables-in-the-intermediate-dataframe" class="section level4">
 <h4>Variables in the intermediate dataframe</h4>
 <ul>
-<li><strong>section</strong> horizontal sections of the table</li>
+<li><strong>subgroup</strong>(optional): partition the entire table by levels of this variable.</li>
 <li><strong>column</strong> column headers for the table</li>
 <li><strong>sub-column</strong>(optional): additional variable which if specfied would be nested under a spanning header of column values. I.e break down demographics table by Arm and sex.</li>
+<li><strong>section</strong> horizontal sections of the table</li>
+<li><strong>section_label</strong> (optional) denoted as ROW_GROUP_LABEL in the diagram. If missing could default to section value.</li>
+<li><strong>row_n</strong>(optional?) unique idenitifer within column*section for controlling section level ordering.</li>
+<li><strong>label</strong> row label element of the table</li>
 <li><strong>cell</strong> single value that be need concatentation (n (%), confidence interval) to create the table cell content</li>
 </ul>
 </div>
 <div id="limitations" class="section level4">
 <h4>Limitations</h4>
-<p>We have not considered table cells that require character values. This could be done in a CDISC like fashion by adding an optional <code>valuec</code> variable for reports that have this requirement.</p>
-<p>This mapping would not be useful for the creation of accompanying listings.</p>
+<p>We have not considered table cells that require character values. For tables with a few character values this could be done in a CDISC like fashion by adding an optional <code>valuec</code> variable for reports that have this requirement though for tables comprising a lot of text this may still be insufficent. This mapping would not be useful for the creation of accompanying listings.</p>
+</div>
+<div id="extensions" class="section level3">
+<h3>Extensions</h3>
+<p>It may be desirable to add futher variables adding traceability of methods used to create the values in the standardized data frame. E.g. What statistical modelling was performed.</p>
+<p>The advantage of having standardized data frame means that it should be possible to store this data and access it through some API to permit fast retrieval of values from tables. Depending on upstream storage and API design it may be interesting to further convert the dataframe to JSON structures. Although it may be sufficient to just load the data into SQL databases with associated metadata.</p>
 </div>
 
 
