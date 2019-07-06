@@ -317,8 +317,7 @@ Figure taken from the gt package
 <p>The above graphic explaining the api for the <a href="https://gt.rstudio.com/">gt package</a> provides a good initial basis to begin thinking about a data frame structure that can be mapped to a table report.</p>
 <p>As a remainder from previous discussion the proposal would be to define a data structure in a long format with one observation per unique value presented in the table. What is denoted as a cell in the graphic may represent the concatanation of multiple original values (in the case the cell contains an estimate with associated confidence interval this would be 3 values).</p>
 <p>For clinical report tables the stub of the table may require more than a single row label column. Maybe a maximum of three levels to cover tables where the summaries are displayed by time period, by paramater and by multiple statistics. Additionally, many tables are repeated across values of a by-group variable.</p>
-<div id="variables-in-the-initial-dataframe" class="section level4">
-<h4>Variables in the initial dataframe</h4>
+<p>####Variables in the initial dataframe</p>
 <p>WIP(maybe better to switch to more CDISC like nomenclature??)</p>
 <ul>
 <li><strong>subgroup</strong>(optional): partition the entire table by levels of this variable.</li>
@@ -333,7 +332,6 @@ Figure taken from the gt package
 <li><strong>precision</strong> (ideally this would be incorporated into display somehow. Maybe displayN). Rounding precision applied when converting numeric values into character cell values.</li>
 </ul>
 <p>Additional information required for conversion of this dataframe into a table: <strong>display dictionary</strong>. <strong>row group label</strong>(see graphic) information.</p>
-</div>
 <div id="variables-in-the-intermediate-dataframe" class="section level4">
 <h4>Variables in the intermediate dataframe</h4>
 <ul>

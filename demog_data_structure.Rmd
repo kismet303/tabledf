@@ -45,7 +45,13 @@ prep_report <- function(data){
   
 }
 
-ADSL <- random.cdisc.data::radsl() %>% mutate(BMI = rnorm(nrow(.), 23, 2))
+set.seed(678)
+ADSL <- tibble(
+  USUSBJID = seq(100),
+  ARM = sample(c("Placebo", "Treatment 1", "Treatment 2" ), 100, replace=TRUE),
+  AGE = floor(rnorm(100, 45, 8)),
+  BMI = rnorm(100,25, 2)
+)
 ```
 
 

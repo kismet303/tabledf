@@ -341,7 +341,13 @@ prep_report &lt;- function(data){
   
 }
 
-ADSL &lt;- random.cdisc.data::radsl() %&gt;% mutate(BMI = rnorm(nrow(.), 23, 2))</code></pre>
+set.seed(678)
+ADSL &lt;- tibble(
+  USUSBJID = seq(100),
+  ARM = sample(c(&quot;Placebo&quot;, &quot;Treatment 1&quot;, &quot;Treatment 2&quot; ), 100, replace=TRUE),
+  AGE = floor(rnorm(100, 45, 8)),
+  BMI = rnorm(100,25, 2)
+)</code></pre>
 <p>We define some named vectors which will map the calculated summary statistic to the display rule to lookup in the display dictionary and to the section row numbering of the report.</p>
 <p>Then we calculate the summary statistics by each treatment arm. The resulting data is once again in the form of the proposed standardized data structure with a single observation with each value.</p>
 <pre class="r"><code># This is too SAS: Proc format like. Should be a smarter way but shows the idea.
@@ -404,62 +410,62 @@ knitr::kable(head(raw))</code></pre>
 <tbody>
 <tr class="odd">
 <td align="left">AGE</td>
-<td align="left">A: Drug X</td>
+<td align="left">Placebo</td>
 <td align="right">1</td>
 <td align="left">N</td>
 <td align="left">n</td>
 <td align="left">n</td>
-<td align="right">134.00000</td>
+<td align="right">31.00000</td>
 <td align="right">0</td>
 </tr>
 <tr class="even">
 <td align="left">AGE</td>
-<td align="left">B: Placebo</td>
+<td align="left">Treatment 1</td>
 <td align="right">1</td>
 <td align="left">N</td>
 <td align="left">n</td>
 <td align="left">n</td>
-<td align="right">123.00000</td>
+<td align="right">35.00000</td>
 <td align="right">0</td>
 </tr>
 <tr class="odd">
 <td align="left">AGE</td>
-<td align="left">C: Combination</td>
+<td align="left">Treatment 2</td>
 <td align="right">1</td>
 <td align="left">N</td>
 <td align="left">n</td>
 <td align="left">n</td>
-<td align="right">143.00000</td>
+<td align="right">34.00000</td>
 <td align="right">0</td>
 </tr>
 <tr class="even">
 <td align="left">AGE</td>
-<td align="left">A: Drug X</td>
+<td align="left">Placebo</td>
 <td align="right">2</td>
 <td align="left">Mean (SD)</td>
 <td align="left">mean_sd</td>
 <td align="left">mean</td>
-<td align="right">40.02239</td>
+<td align="right">45.16129</td>
 <td align="right">1</td>
 </tr>
 <tr class="odd">
 <td align="left">AGE</td>
-<td align="left">B: Placebo</td>
+<td align="left">Treatment 1</td>
 <td align="right">2</td>
 <td align="left">Mean (SD)</td>
 <td align="left">mean_sd</td>
 <td align="left">mean</td>
-<td align="right">40.84553</td>
+<td align="right">43.37143</td>
 <td align="right">1</td>
 </tr>
 <tr class="even">
 <td align="left">AGE</td>
-<td align="left">C: Combination</td>
+<td align="left">Treatment 2</td>
 <td align="right">2</td>
 <td align="left">Mean (SD)</td>
 <td align="left">mean_sd</td>
 <td align="left">mean</td>
-<td align="right">44.18182</td>
+<td align="right">45.00000</td>
 <td align="right">1</td>
 </tr>
 </tbody>
@@ -485,13 +491,13 @@ x</code></pre>
 label
 </th>
 <th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
-A: Drug X
+Placebo
 </th>
 <th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
-B: Placebo
+Treatment 1
 </th>
 <th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
-C: Combination
+Treatment 2
 </th>
 </tr>
 </thead>
@@ -506,13 +512,13 @@ AGE
 N
 </td>
 <td style="padding-left: .5em; padding-right: .2em; text-align: center;">
-134
+31
 </td>
 <td style="padding-left: .5em; padding-right: .2em; text-align: center;">
-123
+35
 </td>
 <td style="padding-left: .5em; padding-right: .2em; text-align: center;">
-143
+34
 </td>
 </tr>
 <tr>
@@ -520,13 +526,13 @@ N
 Mean (SD)
 </td>
 <td style="padding-left: .5em; padding-right: .2em; text-align: center;">
-40.0(18.52)
+45.2(7.10)
 </td>
 <td style="padding-left: .5em; padding-right: .2em; text-align: center;">
-40.8(16.44)
+43.4(8.29)
 </td>
 <td style="padding-left: .5em; padding-right: .2em; text-align: center;">
-44.2(17.57)
+45.0(8.16)
 </td>
 </tr>
 <tr>
@@ -534,13 +540,13 @@ Mean (SD)
 Median
 </td>
 <td style="padding-left: .5em; padding-right: .2em; text-align: center;">
-38
+46
 </td>
 <td style="padding-left: .5em; padding-right: .2em; text-align: center;">
-39
+42
 </td>
 <td style="padding-left: .5em; padding-right: .2em; text-align: center;">
-44
+46
 </td>
 </tr>
 <tr>
@@ -548,13 +554,13 @@ Median
 Range
 </td>
 <td style="padding-left: .5em; padding-right: .2em; text-align: center;">
-20,106
+29,57
 </td>
 <td style="padding-left: .5em; padding-right: .2em; text-align: center;">
-20,85
+28,59
 </td>
 <td style="padding-left: .5em; padding-right: .2em; text-align: center;">
-20,84
+28,63
 </td>
 </tr>
 <tr>
@@ -567,13 +573,13 @@ BMI
 N
 </td>
 <td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
-134
+31
 </td>
 <td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
-123
+35
 </td>
 <td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
-143
+34
 </td>
 </tr>
 <tr style="background-color: #f7f7f7;">
@@ -581,13 +587,13 @@ N
 Mean (SD)
 </td>
 <td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
-22.59(1.889)
+25.36(1.822)
 </td>
 <td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
-22.90(1.994)
+24.16(1.894)
 </td>
 <td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
-22.85(2.159)
+24.95(1.957)
 </td>
 </tr>
 <tr style="background-color: #f7f7f7;">
@@ -595,13 +601,13 @@ Mean (SD)
 Median
 </td>
 <td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
-22.7
+25.5
 </td>
 <td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
-22.8
+24.4
 </td>
 <td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; text-align: center;">
-23.1
+25.0
 </td>
 </tr>
 <tr style="background-color: #f7f7f7;">
@@ -609,13 +615,13 @@ Median
 Range
 </td>
 <td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; border-bottom: 2px solid grey; text-align: center;">
-18.6,28.0
+19.9,28.0
 </td>
 <td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; border-bottom: 2px solid grey; text-align: center;">
-18.7,28.2
+21.1,27.5
 </td>
 <td style="padding-left: .5em; padding-right: .2em; background-color: #f7f7f7; border-bottom: 2px solid grey; text-align: center;">
-16.2,28.9
+20.6,28.4
 </td>
 </tr>
 </tbody>
