@@ -262,3 +262,18 @@ emm1df %>%
   theme(axis.title.y=element_text(size=8, vjust=1.25))
 
 emm1df %>% glimpse()
+
+#######################################################
+##  Map out ARD
+##  ID
+##  Analysis - MMRM
+##  contrast - trt - pbo
+##  Subgroup - 
+##  Visit - visit id
+##  Week - numeric for graphics - jitter error bars
+##  mean  - y / point estimate
+##  se  -  standard error
+##  lower - lower bound
+##  upper - upper bound
+#######################################################
+
