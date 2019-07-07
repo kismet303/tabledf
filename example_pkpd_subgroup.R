@@ -68,15 +68,6 @@ data_to_plot %>%
   theme(legend.box.spacing = unit(0.01*page_width, "mm"))
 
 
-ggsave(file=paste0(fig_path, "404_a.png"), 
-       width = 0.5*page_width, height = 0.25*page_height, 
-       units = "mm", dpi = d_dpi)
-
-
-ggsave(file=paste0(fig_path, "404_a.pdf"), 
-       width = 0.5*page_width, height = 0.25*page_height, units = "mm",  
-       dpi = 1000, device = cairo_pdf)
-
 
 ##############################################################################
 ## Efficacy by subgroup, for treated group only
@@ -98,14 +89,6 @@ data_to_plot %>%
   labs(x = "Visit", 
        y = "Weight loss (%)",
        linetype = "Genetic marker\n(150 mg)") 
-
-ggsave(file=paste0(fig_path, "404_b.png"), 
-       width = 0.5*page_width, height = 0.25*page_height,
-       units = "mm", dpi = d_dpi)
-
-ggsave(file=paste0(fig_path, "404_b.pdf"), 
-       width = 0.5*page_width, height = 0.25*page_height, units = "mm", 
-       dpi = 1000, device = cairo_pdf)
 
 
 
@@ -134,14 +117,6 @@ data_to_plot %>%
        linetype = "Genetic marker") + 
   theme(legend.box.spacing = unit(0.01*page_width, "mm"))
 
-
-ggsave(file=paste0(fig_path, "404_c.png"), 
-       width = 0.5*page_width, height = 0.25*page_height, 
-       units = "mm", dpi = d_dpi)
-
-ggsave(file=paste0(fig_path, "404_c.pdf"), 
-       width = 0.5*page_width, height = 0.25*page_height, units = "mm",
-       dpi = 1000, device = cairo_pdf)
 
 
 ##############################################################################
@@ -213,15 +188,6 @@ emm1df %>%
        linetype = "Genetic marker") 
 
 
-ggsave(file=paste0(fig_path, "404_d.png"), 
-       width = 0.5*page_width, height = 0.25*page_height, 
-       units = "mm", dpi = d_dpi)
-
-
-ggsave(file=paste0(fig_path, "404_d.pdf"), 
-       width = 0.5*page_width, height = 0.25*page_height, units = "mm",
-       dpi = 1000, device = cairo_pdf)
-
 
 ##############################################################################
 ## Final message graph
@@ -267,7 +233,7 @@ emm1df %>% glimpse()
 ##  Map out ARD
 ##  ID
 ##  Analysis - MMRM
-##  contrast - trt - pbo
+##  comparison - trt - pbo
 ##  Subgroup - 
 ##  Visit - visit id
 ##  Week - numeric for graphics - jitter error bars
@@ -275,5 +241,22 @@ emm1df %>% glimpse()
 ##  se  -  standard error
 ##  lower - lower bound
 ##  upper - upper bound
+##  N     - # patients
 #######################################################
+
+final_dataset <- emm1df %>%
+  mutate(id = 1001,
+         analysis = "Mixed effect repeated measures",
+         comparison = contrasts.contrast,
+         visit = emmeans.Visit,
+         week = Week,
+         subgroup = subgroup) %>%
+  select(id,
+         analysis,
+         comparison,
+         visit,
+         week,
+         subgroup) 
+
+final_dataset %>% glimpse()
 
