@@ -242,6 +242,10 @@ emm1df %>% glimpse()
 ##  lower - lower bound
 ##  upper - upper bound
 ##  N     - # patients
+##
+##  TODO: 
+##  convert to long format - melt?
+##  define controlled vocab
 #######################################################
 
 final_dataset <- emm1df %>%
