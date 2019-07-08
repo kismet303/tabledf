@@ -264,3 +264,18 @@ final_dataset <- emm1df %>%
 
 final_dataset %>% glimpse()
 
+
+#########################################################
+# uanalid - unique analysis id 
+# trtvar  - trt01p or trt01a, etc. 
+# trtval  - trt1, trt2, etc.
+# avisitn - visit number
+# paramcd - endpoint
+# rowcat1 - contrast / estimand i.e. trt1 vs trt2
+# anltyp1 - trt summary, comparison summary, etc.
+# analytp2 - trt , control, etc.
+# stat - statistic, small n, big n, percent, etc. 
+# statval - statistic value
+# anlmeth - method to obtain stat
+########################################################
+
