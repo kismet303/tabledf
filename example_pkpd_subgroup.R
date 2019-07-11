@@ -64,9 +64,7 @@ data_to_plot %>%
   stat_summary(geom = "point", size = 2.5, fun.y = mean, stroke = 1) +
   scale_y_continuous(breaks = seq(-20,20,1)) +
   coord_cartesian(ylim = (c(-10, 5))) +
-  labs(x = "Visit", y = "Weight loss (%)") +
-  theme(legend.box.spacing = unit(0.01*page_width, "mm"))
-
+  labs(x = "Visit", y = "Weight loss (%)") 
 
 
 ##############################################################################
@@ -114,8 +112,7 @@ data_to_plot %>%
   coord_cartesian(ylim = (c(-10, 5))) +
   labs(x = "Visit", 
        y = "Weight loss (%)\nMean (95% CI)",
-       linetype = "Genetic marker") + 
-  theme(legend.box.spacing = unit(0.01*page_width, "mm"))
+       linetype = "Genetic marker") 
 
 
 
