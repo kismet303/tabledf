@@ -64,18 +64,7 @@ data_to_plot %>%
   stat_summary(geom = "point", size = 2.5, fun.y = mean, stroke = 1) +
   scale_y_continuous(breaks = seq(-20,20,1)) +
   coord_cartesian(ylim = (c(-10, 5))) +
-  labs(x = "Visit", y = "Weight loss (%)") +
-  theme(legend.box.spacing = unit(0.01*page_width, "mm"))
-
-
-ggsave(file=paste0(fig_path, "404_a.png"), 
-       width = 0.5*page_width, height = 0.25*page_height, 
-       units = "mm", dpi = d_dpi)
-
-
-ggsave(file=paste0(fig_path, "404_a.pdf"), 
-       width = 0.5*page_width, height = 0.25*page_height, units = "mm",  
-       dpi = 1000, device = cairo_pdf)
+  labs(x = "Visit", y = "Weight loss (%)") 
 
 
 ##############################################################################
@@ -98,14 +87,6 @@ data_to_plot %>%
   labs(x = "Visit", 
        y = "Weight loss (%)",
        linetype = "Genetic marker\n(150 mg)") 
-
-ggsave(file=paste0(fig_path, "404_b.png"), 
-       width = 0.5*page_width, height = 0.25*page_height,
-       units = "mm", dpi = d_dpi)
-
-ggsave(file=paste0(fig_path, "404_b.pdf"), 
-       width = 0.5*page_width, height = 0.25*page_height, units = "mm", 
-       dpi = 1000, device = cairo_pdf)
 
 
 
@@ -131,17 +112,8 @@ data_to_plot %>%
   coord_cartesian(ylim = (c(-10, 5))) +
   labs(x = "Visit", 
        y = "Weight loss (%)\nMean (95% CI)",
-       linetype = "Genetic marker") + 
-  theme(legend.box.spacing = unit(0.01*page_width, "mm"))
+       linetype = "Genetic marker") 
 
-
-ggsave(file=paste0(fig_path, "404_c.png"), 
-       width = 0.5*page_width, height = 0.25*page_height, 
-       units = "mm", dpi = d_dpi)
-
-ggsave(file=paste0(fig_path, "404_c.pdf"), 
-       width = 0.5*page_width, height = 0.25*page_height, units = "mm",
-       dpi = 1000, device = cairo_pdf)
 
 
 ##############################################################################
@@ -213,15 +185,6 @@ emm1df %>%
        linetype = "Genetic marker") 
 
 
-ggsave(file=paste0(fig_path, "404_d.png"), 
-       width = 0.5*page_width, height = 0.25*page_height, 
-       units = "mm", dpi = d_dpi)
-
-
-ggsave(file=paste0(fig_path, "404_d.pdf"), 
-       width = 0.5*page_width, height = 0.25*page_height, units = "mm",
-       dpi = 1000, device = cairo_pdf)
-
 
 ##############################################################################
 ## Final message graph
@@ -267,7 +230,7 @@ emm1df %>% glimpse()
 ##  Map out ARD
 ##  ID
 ##  Analysis - MMRM
-##  contrast - trt - pbo
+##  comparison - trt - pbo
 ##  Subgroup - 
 ##  Visit - visit id
 ##  Week - numeric for graphics - jitter error bars
@@ -275,5 +238,41 @@ emm1df %>% glimpse()
 ##  se  -  standard error
 ##  lower - lower bound
 ##  upper - upper bound
+##  N     - # patients
+##
+##  TODO: 
+##  convert to long format - melt?
+##  define controlled vocab
 #######################################################
+
+final_dataset <- emm1df %>%
+  mutate(id = 1001,
+         analysis = "Mixed effect repeated measures",
+         comparison = contrasts.contrast,
+         visit = emmeans.Visit,
+         week = Week,
+         subgroup = subgroup) %>%
+  select(id,
+         analysis,
+         comparison,
+         visit,
+         week,
+         subgroup) 
+
+final_dataset %>% glimpse()
+
+
+#########################################################
+# uanalid - unique analysis id 
+# trtvar  - trt01p or trt01a, etc. 
+# trtval  - trt1, trt2, etc.
+# avisitn - visit number
+# paramcd - endpoint
+# rowcat1 - contrast / estimand i.e. trt1 vs trt2
+# anltyp1 - trt summary, comparison summary, etc.
+# analytp2 - trt , control, etc.
+# stat - statistic, small n, big n, percent, etc. 
+# statval - statistic value
+# anlmeth - method to obtain stat
+########################################################
 
