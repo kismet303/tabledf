@@ -10,15 +10,9 @@ ARD %>% glimpse()
 DEMOG <- ARD %>%
   filter(PARAMCD == "AGE" & ANALTYP1 == "SUMMARY")
 
-
 DEMOG %>% glimpse()
 
-DEMOG %>% 
-  filter(STAT == "MEAN") %>%
-  ggplot(aes(x = STUDYID, y = STATVAL)) + 
-  geom_point()
-
-
+## Arrange in to table format
 T1 <- 
   DEMOG %>% 
   select(STUDYID, TRTVAL, STAT, STATVAL) %>%
@@ -27,9 +21,12 @@ T1 <-
   gather(groupname, value, -id, -STUDYID, -TRTVAL, -STAT) %>% 
   spread(STAT, value)
 
+
+## Simple plot
 T1 %>% ggplot(aes(x = TRTVAL, y = MEAN)) +
   geom_pointrange(aes(ymin = MEAN - 1.96 * SD, 
                       ymax = MEAN + 1.96 * SD), 
                   alpha = 0.7, color = "#c0392b", size = 0.25) +
   coord_flip() +
-  facet_wrap(~STUDYID, ncol=1)
+  facet_wrap(~STUDYID, ncol=1) + 
+  theme_minimal()
