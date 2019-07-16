@@ -163,7 +163,6 @@ emm1df <- as.data.frame(ests) %>%
     Week = ifelse(subgroup == "Positive", NOMTIME - 0.15, NOMTIME + 0.05 )
   )
 
-
 ## Take out the baseline visit
 emm1df %>%
   filter(contrasts.Visit != 101) %>% 
@@ -192,6 +191,8 @@ emm1df %>%
 
 pos <- emm1df %>%
   filter(contrasts.Visit != 101 & subgroup == "Positive")  
+
+
 
 
 emm1df %>%
@@ -244,6 +245,13 @@ emm1df %>% glimpse()
 ##  convert to long format - melt?
 ##  define controlled vocab
 #######################################################
+
+# didn't see below when i started this
+# emm1df %>% 
+#   select(contrasts.contrast, Visit, subgroup, y, contrasts.SE, emmeans.asymp.LCL, emmeans.asymp.UCL, emmeans.Treatment) %>% 
+#   gather(key="statistic", value="value", -contrasts.contrast, -subgroup, -Visit, -emmeans.Treatment) %>% 
+#   rename(column = emmeans.Treatment)
+
 
 final_dataset <- emm1df %>%
   mutate(id = 1001,
